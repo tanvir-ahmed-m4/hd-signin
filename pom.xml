@@ -23,10 +23,19 @@
 		<jersey.version>1.18</jersey.version>
 		<spring.version>3.2.2.RELEASE</spring.version>
 		<slf4j.version>1.7.7</slf4j.version>
+		<guava.version>17.0</guava.version>
 	</properties>
 
 	<dependencies>
+		
+		<!-- Guava for a library of useful functions -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
+		</dependency>
 
+		<!-- Logging Framework -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -36,13 +45,13 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.7</version>
+			<version>${slf4j.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
-			<version>1.7.7</version>
+			<version>${slf4j.version}</version>
 		</dependency>
 
 		<dependency>
