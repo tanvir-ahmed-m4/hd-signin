@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="signin">
+  <head>
+    <meta charset="utf-8">
+    <title>Helpdesk Signin</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css" type="text/css" charset="utf-8">
+    
+    <style>
+    body {
+    	background-color: #333;
+    	color: #aaa;
+    }
+    </style>
+  </head>
+<body ng-controller="SigninCtrl">
+	<div class="row" style="height: 60px" >
+	</div>
+	<div class="row">
+		<div class="col-md-4">
+		</div>
+		<div class="col-md-4">
+			<div class="form-inline">
+				<input type="text" placeholder="Student ID" class="input-large form-control" ng-model="swiper">
+				<button class="btn btn-default" ng-click="doSwipe()">Swipe</button>
+			</div>
+			<div id="msg">
+				{{message}}
+			</div>
+			
+		</div>
+		<div class="col-md-4">
+		</div>
+		
+	</div>
+        
+	<footer>
+		<script type="text/javascript" src="js/lib/angular.min.js"></script>
+		<script type="text/javascript" src="js/signin/app.js"></script>
+		<script type="text/javascript" src="js/signin/controller.js"></script>
+		<script type="text/javascript" src="js/signin/services.js"></script>
+		
+	</footer>
+
+</body>
+</html>

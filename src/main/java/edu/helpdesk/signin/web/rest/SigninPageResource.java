@@ -20,17 +20,16 @@ import edu.helpdesk.signin.model.dto.SignedInEmployee;
 import edu.helpdesk.signin.model.dto.SigninResult;
 import edu.helpdesk.signin.model.dto.SigninResultSwipedIn;
 import edu.helpdesk.signin.model.dto.SigninResultSwipedOut;
+import edu.helpdesk.signin.web.util.PathConstants;
 import edu.helpdesk.signin.web.util.WebTask;
 import static edu.helpdesk.signin.web.util.WebTaskExecutor.doWebTaskSafe;
 
-@Path("/signin")
+@Path(PathConstants.SIGNIN_PATH)
 public class SigninPageResource {
 	private static final Logger log = LoggerFactory.getLogger(SigninPageResource.class);
 	Random r = new Random();
 	
-	public SigninPageResource() {
-		log.debug("Creating {}", this.getClass().getCanonicalName());
-	}
+	public SigninPageResource() {}
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
