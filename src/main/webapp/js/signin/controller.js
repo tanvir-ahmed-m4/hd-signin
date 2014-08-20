@@ -3,16 +3,24 @@ angular.module('signin').controller('SigninCtrl', ['$scope', 'swipeServices',  f
 	$scope.swiper = '';
 	$scope.message = '';
 	
-
 	$scope.doSwipe = function(){
 		function handleResponse(data){
 			processMessage('');
+			
+			// error communicating with server
 			if(data.error){
-				handleError(data);
+				handleServerError(data);
 			}
+			
+			// error doing swipe, probably bad data
+			else if(data.hasError){
+				handleBadSwipeError(data);
+			}
+			// now signed in
 			else if(data.isNowSignedIn){
 				handleSigin(data);
 			}
+			// now signed out
 			else{
 				handleSignout(data);
 			}
@@ -22,11 +30,20 @@ angular.module('signin').controller('SigninCtrl', ['$scope', 'swipeServices',  f
 	}
 	
 	function handleSigin(data){
-		
+		/* Example data
+		 *  {
+		 *    "isNowSignedIn":true,
+		 *    "name":"asdf",
+		 *    "hasError":false,
+		 *    "errorMessage":null
+		 *  }
+		 */
+		processMessage('Welcome to the helpdesk, ' + data.name);
 	}
 	
 	function handleSignout(data){
-		//{
+		// exmaple data
+		//{ 
 		//  "isNowSignedIn":false,
 		//  "name":"asdf",
 		//  "hasError":false,
@@ -42,8 +59,13 @@ angular.module('signin').controller('SigninCtrl', ['$scope', 'swipeServices',  f
 		processMessage(msg);
 	}
 	
-	function handleError(data){
-		
+	function handleServerError(data){
+		processMessage('Error swiping in: ' + data.error);
+		console.log('Server error swiping in: ' + JSON.stringify(data));
+	}
+	
+	function handleBadSwipeError(data){
+		processMessage('Error swiping in: ' + data.errorMessage);
 	}
 	
 	function processMessage(msg){
@@ -52,7 +74,4 @@ angular.module('signin').controller('SigninCtrl', ['$scope', 'swipeServices',  f
 		msg = msg.replace('/r', '<br />');
 		$scope.message = msg;
 	}
-
-
-
 }]);
