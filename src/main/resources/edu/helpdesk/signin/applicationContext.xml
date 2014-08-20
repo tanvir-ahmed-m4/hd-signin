@@ -12,6 +12,4 @@
  	
 	<context:component-scan base-package="edu.helpdesk.signin.web.rest" />
  
-        
- 
 </beans>

@@ -1,4 +1,4 @@
-package edu.helpdesk.signin.model.dto;
+package edu.helpdesk.signin.model.nto;
 
 public abstract class SigninResult {
 	private boolean isNowSignedIn;

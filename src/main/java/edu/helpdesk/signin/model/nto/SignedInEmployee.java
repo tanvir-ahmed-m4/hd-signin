@@ -1,4 +1,4 @@
-package edu.helpdesk.signin.model.dto;
+package edu.helpdesk.signin.model.nto;
 
 public class SignedInEmployee {
 	private String name;

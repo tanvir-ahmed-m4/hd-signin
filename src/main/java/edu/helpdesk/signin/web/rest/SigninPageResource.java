@@ -15,19 +15,21 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-import edu.helpdesk.signin.model.dto.SignedInEmployee;
-import edu.helpdesk.signin.model.dto.SigninResult;
-import edu.helpdesk.signin.model.dto.SigninResultSwipedIn;
-import edu.helpdesk.signin.model.dto.SigninResultSwipedOut;
+import edu.helpdesk.signin.model.nto.SignedInEmployee;
+import edu.helpdesk.signin.model.nto.SigninResult;
+import edu.helpdesk.signin.model.nto.SigninResultSwipedIn;
+import edu.helpdesk.signin.model.nto.SigninResultSwipedOut;
 import edu.helpdesk.signin.web.util.PathConstants;
 import edu.helpdesk.signin.web.util.WebTask;
 import static edu.helpdesk.signin.web.util.WebTaskExecutor.doWebTaskSafe;
 
+@Component
 @Path(PathConstants.SIGNIN_PATH)
 public class SigninPageResource {
 	private static final Logger log = LoggerFactory.getLogger(SigninPageResource.class);
-	Random r = new Random();
+	private Random r = new Random();
 	
 	public SigninPageResource() {}
 	
