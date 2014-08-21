@@ -1,10 +1,63 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="edu.helpdesk.signin.dao.mybatis.EmployeeMapper">
+
+	<resultMap id="EmployeeMapper" type="edu.helpdesk.signin.model.dto.Employee">
+		<result property="id" column="EmployeeId" />
+		<result property="firstName" column="EmployeeFirstName" />
+		<result property="lastName" column="EmployeeLastName" />
+		<result property="riceId" column="EmployeeRiceId" />
+		<result property="netId" column="EmployeeNetId" />
+		<result property="employeeType" column="EmployeeTypeName" />
+		<result property="isEmployeeActive" column="EmployeeIsActive" />
+	</resultMap>
 	
-	<select id="getAllEmployees" resultType="edu.helpdesk.signin.model.Employee">
-		SELECT * FROM employees;
+	<sql id="selectStatement">
+		SELECT e.EmployeeId, e.EmployeeFirstName, e.EmployeeLastName, e.EmployeeRiceId,
+		e.EmployeeNetId, et.EmployeeTypeName, e.EmployeeIsActive
+		FROM Employee AS e
+		LEFT JOIN EmployeeType AS et ON e.EmployeeTypeId = et.EmployeeTypeId
+	</sql>
+
+	<select id="getAllEmployees" resultMap="EmployeeMapper">
+		<include refid="selectStatement" />
 	</select>
-	
-	
+
+	<select id="getEmployeeByNetId" resultMap="EmployeeMapper">
+		<include refid="selectStatement" />
+		WHERE EmployeeNetId = #{netId}
+	</select>
+
+	<select id="getEmployeeByRiceId" resultMap="EmployeeMapper">
+		<include refid="selectStatement" />
+		WHERE EmployeeRiceId = #{riceId}
+	</select>
+
+	<select id="getEmployeeById" resultMap="EmployeeMapper">
+		<include refid="selectStatement" />
+		WHERE EmployeeId = #{id}
+	</select>
+
+	<update id="updateEmployee">
+		UPDATE Employee SET
+			EmployeeFirstName = #{updated.firstName},
+			EmployeeLastName = #{updated.lastName},
+			EmployeeRiceId = #{updated.riceId},
+			EmployeeNetId = #{updated.netId},
+			EmployeeTypeId = #{updated.employeeType.id},
+			EmployeeIsActive = #{updated.isEmployeeActive}
+		WHERE EmployeeId = #{updated.id}
+	</update>
+
+	<update id="deleteEmployee">
+		DELETE FROM Employee WHERE EmployeeId = #{employeeId}
+	</update>
+
+	<insert id="createEmployee" keyProperty="template.id" keyColumn="EmployeeId" useGeneratedKeys="true" statementType="PREPARED">
+		INSERT INTO Employee 
+			(EmployeeFirstName, EmployeeLastName, EmployeeRiceId, EmployeeNetId, EmployeeTypeId, EmployeeIsActive)
+		VALUES
+			(#{template.firstName}, #{template.lastName}, #{template.riceId}, #{template.netId}, #{template.employeeType.id}, #{template.isEmployeeActive});
+	</insert>
+
 </mapper>

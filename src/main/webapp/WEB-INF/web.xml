@@ -27,6 +27,11 @@
 		</init-param>
 		
 		<init-param>
+			<param-name>log4j-properties-location</param-name>
+			<param-value>log4j.properties</param-value>
+		</init-param>
+		
+		<init-param>
 			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
         	<param-value>true</param-value>
 		</init-param>

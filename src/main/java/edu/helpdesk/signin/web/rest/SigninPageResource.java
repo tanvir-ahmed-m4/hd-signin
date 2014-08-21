@@ -17,6 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
 import edu.helpdesk.signin.model.nto.SignedInEmployee;
 import edu.helpdesk.signin.model.nto.SigninResult;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedIn;
@@ -63,7 +66,7 @@ public class SigninPageResource {
 	}
 	
 	
-	private static Map<String, Boolean> signedIn = new HashMap<>(); /* TODO remove and replace with DAO */
+	private Map<String, Boolean> signedIn = new HashMap<>(); /* TODO remove and replace with DAO */
 	
 	private SigninResult doSwipeInternal(String sid){
 		Boolean isIn = false;

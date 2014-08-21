@@ -5,5 +5,11 @@ public enum EmployeeType {
 	SCC,
 	SCC_LEAD,
 	SUPERVISOR,
-	SYSADMIN
+	SYSADMIN;
+	
+	
+	public int getId(){
+		return this.ordinal();
+	}
+	
 }

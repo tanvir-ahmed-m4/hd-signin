@@ -6,6 +6,7 @@ angular.module('signin').controller('SigninCtrl', ['$scope', 'swipeServices',  f
 	$scope.doSwipe = function(){
 		function handleResponse(data){
 			processMessage('');
+			$scope.swiper = '';
 			
 			// error communicating with server
 			if(data.error){
@@ -24,6 +25,7 @@ angular.module('signin').controller('SigninCtrl', ['$scope', 'swipeServices',  f
 			else{
 				handleSignout(data);
 			}
+			document.getElementById('sidfield').focus();
 		}
 		processMessage('Working...');
 		swipeServices.swipe($scope.swiper).then(handleResponse);

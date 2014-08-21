@@ -2,17 +2,19 @@ package edu.helpdesk.signin.dao.mybatis;
 
 import java.util.List;
 
-import edu.helpdesk.signin.model.Employee;
+import org.apache.ibatis.annotations.Param;
+
+import edu.helpdesk.signin.model.dto.Employee;
 
 public interface EmployeeMapper {
-	Integer createEmployee(Employee template);
+	Integer createEmployee(@Param("template") Employee template);
 	
 	List<Employee> getAllEmployees();
-	Employee getEmployeeByNetId(String netId);
-	Employee getEmployeeByRiceId(String riceId);
-	Employee getEmployeeById(Integer id);
+	Employee getEmployeeByNetId(@Param("netId") String netId);
+	Employee getEmployeeByRiceId(@Param("riceId") String riceId);
+	Employee getEmployeeById(@Param("id") Integer id);
 	
-	void updateEmployee(Employee updated);
+	void updateEmployee(@Param("updated") Employee updated);
 	
-	void deleteEmployee(Integer employeeId);
+	void deleteEmployee(@Param("employeeId") Integer employeeId);
 }

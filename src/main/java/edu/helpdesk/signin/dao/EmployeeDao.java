@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.helpdesk.signin.dao.mybatis.EmployeeMapper;
-import edu.helpdesk.signin.model.Employee;
+import edu.helpdesk.signin.model.dto.Employee;
 
 
 public class EmployeeDao {
