@@ -12,7 +12,7 @@ angular.module('signin').factory('swipeServices', ['$http', function($http){
 		}).then(function(response){
 			return response.data;
 		}, function(error){
-			console.log('got error: ' + JSON.stringifiy(error));
+			console.log('got error: ' + JSON.stringify(error));
 			return '';
 		});
 	}

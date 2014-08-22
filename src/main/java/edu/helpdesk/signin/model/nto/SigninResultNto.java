@@ -1,6 +1,6 @@
 package edu.helpdesk.signin.model.nto;
 
-public abstract class SigninResult {
+public abstract class SigninResultNto {
 	private boolean isNowSignedIn;
 	private String name;
 	
@@ -8,7 +8,7 @@ public abstract class SigninResult {
 	private String errorMessage;
 	
 	
-	public SigninResult(boolean isNowSignedIn, String name, boolean hadError, String errorMsg) {
+	public SigninResultNto(boolean isNowSignedIn, String name, boolean hadError, String errorMsg) {
 		this.setErrorMessage(errorMsg);
 		this.setHasError(hadError);
 		this.setisNowSignedIn(isNowSignedIn);

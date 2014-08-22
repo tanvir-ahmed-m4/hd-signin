@@ -1,14 +1,13 @@
 package edu.helpdesk.signin.model.nto;
 
-public class SigninResultSwipedOut extends SigninResult{
+public class SigninResultSwipedOutNto extends SigninResultNto{
 	
 	private String snark;
 	private int timeWorkedShift;
 	private int timeWorkedDay;
 	
-	public SigninResultSwipedOut(int timeWorkedShift, int timeWorkedDay, String snark, String name,
-			boolean hadError, String errorMsg) {
-		super(false, name, hadError, errorMsg);
+	public SigninResultSwipedOutNto(int timeWorkedShift, int timeWorkedDay, String snark, String name) {
+		super(false, name, false, null);
 		this.setSnark(snark);
 		this.setTimeWorkedShift(timeWorkedShift);
 		this.setTimeWorkedDay(timeWorkedDay);

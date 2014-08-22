@@ -1,5 +1,7 @@
 package edu.helpdesk.signin.services;
 
+import java.util.Date;
+
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import edu.helpdesk.signin.dao.EmployeeDao;
+import edu.helpdesk.signin.dao.mybatis.SigninMapper;
 import edu.helpdesk.signin.model.EmployeeType;
 import edu.helpdesk.signin.model.dto.Employee;
 
@@ -20,6 +23,9 @@ public class ProgramValidityVerifier {
 	@Autowired
 	private EmployeeDao employeeDao;
 
+	@Autowired
+	private SigninMapper smapper;
+	
 	public ProgramValidityVerifier() {}
 	
 	@PostConstruct
@@ -56,7 +62,7 @@ public class ProgramValidityVerifier {
 					employeeDao.updateEmployee(sysadmin);
 				}
 			}
-
+			
 			log.info("Done validating program integrity");
 		}catch(Exception e){
 			log.error("Exception validating program", e);

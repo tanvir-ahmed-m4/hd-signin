@@ -7,10 +7,8 @@
 	http://www.springframework.org/schema/context
 	http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-	<bean id="dataSource"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="${db.driver}" />
-		<!-- <property name="driver" value="${db.driver}" /> -->
 		<property name="url" value="${db.url}" />
 		<property name="username" value="${db.username}" />
 		<property name="password" value="${db.password}" />
@@ -21,10 +19,18 @@
 	</bean>
 
 	<bean id="employeeDao" class="edu.helpdesk.signin.dao.EmployeeDao" />
-
 	<bean id="employeeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
 		<property name="mapperInterface" value="edu.helpdesk.signin.dao.mybatis.EmployeeMapper" />
 		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
 	</bean>
+	
+	
+	<bean id="signinDao" class="edu.helpdesk.signin.dao.SigninDao" />
+	<bean id="signinMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="edu.helpdesk.signin.dao.mybatis.SigninMapper" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+	
+	
 
 </beans>

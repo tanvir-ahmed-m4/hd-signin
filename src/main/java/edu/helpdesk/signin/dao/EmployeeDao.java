@@ -21,7 +21,8 @@ public class EmployeeDao {
 	}
 	
 	public Integer createEmployee(Employee template){
-		return mapper.createEmployee(template);
+		mapper.createEmployee(template);
+		return Integer.valueOf(template.getId());
 	}
 	
 	public void updateEmployee(Employee e){
