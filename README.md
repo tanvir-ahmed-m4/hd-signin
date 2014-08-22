@@ -13,4 +13,4 @@ Once both are installed, you can run the program by doing the following:
 3. Give the MySQL user you created full access to this database
 4. Set the MySQL username and password in the application.properties configuration file
 5. Run the program by typing `mvn jetty:run` on the command line from the root of the project
-6. The site can then be accessed by going to http://localhost:8080/signin
+6. The site can then be accessed by going to [http://localhost:8080/signin](http://localhost:8080/signin)
