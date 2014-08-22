@@ -1,7 +1,5 @@
 package edu.helpdesk.signin.services;
 
-import java.util.Date;
-
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
