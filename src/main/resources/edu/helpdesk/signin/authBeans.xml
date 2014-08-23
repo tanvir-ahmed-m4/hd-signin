@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<bean name="ticketValidator"
+		class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+		<constructor-arg index="0" value="https://netid.rice.edu/cas/" />
+	</bean>
+
+	<bean name="authenticationFilter"
+		class="org.jasig.cas.client.authentication.AuthenticationFilter">
+		<property name="casServerLoginUrl" value="https://netid.rice.edu/cas/login" />
+		<property name="renew" value="false" />
+		<property name="gateway" value="false" />
+		<property name="service" value="http://localhost:8080/signin/admin" />
+	</bean>
+
+	<bean name="ticketValidationFilter"
+		class="org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter">
+		<property name="service" value="http://localhost:8080/signin/admin" />
+		<property name="ticketValidator" ref="ticketValidator" />
+	</bean>
+
+	<!-- Proxy class to allow spring to work with the servlet container -->
+	<bean name="ticketValidationFilterProxy" class="org.springframework.web.filter.DelegatingFilterProxy">
+		<property name="targetBeanName" value="ticketValidationFilter" />
+	</bean>
+
+	<!-- Proxy class to allow spring to work with the servlet container -->
+	<bean name="authenticationFilterProxy" class="org.springframework.web.filter.DelegatingFilterProxy">
+		<property name="targetBeanName" value="authenticationFilter" />
+	</bean>
+
+</beans>

@@ -9,6 +9,7 @@
 	<context:property-placeholder location="classpath:application.properties" />
 	
  	<import resource="databaseBeans.xml"/>
+ 	<import resource="authBeans.xml"/>
  	
 	<context:component-scan base-package="edu.helpdesk.signin.web.rest" />
  	
