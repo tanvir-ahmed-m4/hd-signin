@@ -15,17 +15,17 @@ CREATE TABLE `PeriodEnd` (
 
 	INDEX (PeriodEnd)
 
-) CHARSET = UTF8;
+) CHARSET = UTF8, ENGINE = InnoDB;
 
 CREATE TABLE `CorrectionRequestStatus` (
 	CorrectionRequestStatusId   INT NOT NULL PRIMARY KEY,
 	CorrectionRequestStatusName VARCHAR(128) NOT NULL
-) CHARSET = UTF8;
+) CHARSET = UTF8, ENGINE = InnoDB;
 
 CREATE TABLE `EmployeeType` (
 	EmployeeTypeId   INT NOT NULL PRIMARY KEY,
 	EmployeeTypeName VARCHAR(128) NOT NULL
-) CHARSET = UTF8;
+) CHARSET = UTF8, ENGINE = InnoDB;
 
 
 CREATE TABLE `Employee` (
@@ -39,7 +39,7 @@ CREATE TABLE `Employee` (
 
 	FOREIGN KEY (EmployeeTypeId) REFERENCES `EmployeeType` (`EmployeeTypeId`)
 
-) AUTO_INCREMENT = 1, CHARSET = UTF8;
+) CHARSET = UTF8, ENGINE = InnoDB, AUTO_INCREMENT = 1;
 
 CREATE TABLE `SigninData` (
 	SigninDataId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -53,7 +53,7 @@ CREATE TABLE `SigninData` (
 
 	FOREIGN KEY (EmployeeId) REFERENCES `Employee` (`EmployeeId`)
 
-) AUTO_INCREMENT = 1, CHARSET = UTF8;
+) CHARSET = UTF8, ENGINE = InnoDB, AUTO_INCREMENT = 1;
 
 CREATE TABLE `CorrectionRequest` (
 	CorrectionRequestId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -68,7 +68,7 @@ CREATE TABLE `CorrectionRequest` (
 	FOREIGN KEY (SubmitterEmployeeId) REFERENCES `Employee` (`EmployeeId`),
 	FOREIGN KEY (CorrectionRequestStatusId) REFERENCES `CorrectionRequestStatus` (`CorrectionRequestStatusId`)
 
-) AUTO_INCREMENT = 1, CHARSET = UTF8;
+) CHARSET = UTF8, ENGINE = InnoDB, AUTO_INCREMENT = 1;
 
 
 INSERT INTO `EmployeeType` (`EmployeeTypeId`, `EmployeeTypeName`) VALUES 
