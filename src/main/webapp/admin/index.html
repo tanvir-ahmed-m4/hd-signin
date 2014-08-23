@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="admin">
+<head>
+	<meta charset="utf-8">
+	<title>Helpdesk Administration</title>
+	<link rel="stylesheet" href="/signin/css/bootstrap.min.css" type="text/css" charset="utf-8">
+	<link rel="stylesheet" href="/signin/css/bootstrap-theme.min.css" type="text/css" charset="utf-8">
+</head>
+<body>
+
+	<div ng-controller="AdminNavCtrl" class="navbar navbar-default navbar-static-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand">Helpdesk Administration</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<!-- TODO adjust visibility of these depending on permission levels -->
+				<li class="{{isActive('') ? 'active' : ''}}"><a href="#/">Dashboard</a></li>
+				<li class="{{isActive('timecard') ? 'active' : ''}}"><a href="#/timecard">Timecards</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<!-- Add active class to li for effects -->
+				<li><a>USERNAME HERE</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<!-- ng-view will be swapped out for the different content sections -->
+	<ng-view></ng-view>
+
+	<footer>
+		<script type="text/javascript" src="/signin/js/lib/angular.min.js"></script>
+		<script type="text/javascript" src="/signin/js/admin/app.js"></script>
+		<script type="text/javascript" src="/signin/js/admin/navctrl.js"></script>
+		<script type="text/javascript" src="/signin/js/admin/services.js"></script>
+		<script type="text/javascript" src="/signin/js/admin/homecontroller.js"></script>
+	</footer>
+
+</body>
+</html>
