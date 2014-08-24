@@ -43,6 +43,53 @@ angular.module('admin').factory('miscServices', ['$http', function($http){
 			return '';
 		});
 	}
+}]);
+
+angular.module('admin').factory('employeeServices', ['$http', function($http){
 	
+	return {
+		createEmployee: createEmployee,
+		updateEmployee: updateEmployee,
+		deleteEmployee: deleteEmployee,
+		getAllEmployees: getAllEmployees
+	}
+	
+	function createEmployee(employee){
+		
+	}
+	
+	function updateEmployee(employee){
+		return $http({
+			method: 'POST',
+			url: '/signin/rest/admin/scc/employee',
+			data: employee
+		}).then(function(response){
+			return response.data;
+		}, function(error){
+			console.log('Got an error: ' + JSON.stringify(error));
+		});
+	}
+	
+	function deleteEmployee(id){
+		
+	}
+	
+	function getAllEmployees(filterInactive){
+		if(typeof(filterInactive) === 'undefined' || filterInactive === null){
+			filterInactive = true;
+		}
+		
+		return $http({
+			method: 'GET',
+			url: '/signin/rest/admin/scclead/employees',
+			params: {'filterinactive': filterInactive}
+		}).then(function(response){
+			return response.data;
+		}, function(error){
+			console.log('Got an error: ' + JSON.stringify(error));
+		});
+		
+		
+	}
 	
 }]);

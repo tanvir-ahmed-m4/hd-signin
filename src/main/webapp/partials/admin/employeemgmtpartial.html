@@ -1,0 +1,63 @@
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-3"></div>
+
+		<div class="col-md-3">
+			<select class="form-control" ng-model="activeEmployee" ng-options="employee.firstName for employee in employees"></select>
+		</div>
+
+		<div class="col-md-6">
+			<form class="form-horizontal" role="form">
+				<div class="form-group">
+					<label for="fname" class="col-sm-2 control-label">First Name</label>
+					<div class="col-sm-10">
+						<input class="form-control" id="fname" placeholder="First Name" ng-model="activeEmployee.firstName">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="lname" class="col-sm-2 control-label">Last Name</label>
+					<div class="col-sm-10">
+						<input class="form-control" id="lname" placeholder="Last Name" ng-model="activeEmployee.lastName">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="netid" class="col-sm-2 control-label">Net ID</label>
+					<div class="col-sm-10">
+						<input class="form-control" id="netid" placeholder="Net ID" ng-model="activeEmployee.netId">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="riceid" class="col-sm-2 control-label">Rice ID</label>
+					<div class="col-sm-10">
+						<input class="form-control" id="riceid" placeholder="Rice ID" ng-model="activeEmployee.riceId">
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label for="employeetype" class="col-sm-2 control-label">Employee Type</label>
+					<div class="col-sm-10">
+						<select class="form-control" id="employeetype" ng-model="activeEmployee.employeeType" ng-options="e for e in employeeTypes"></select>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<div class="checkbox">
+							<label> <input type="checkbox" ng-model="activeEmployee.isEmployeeActive">Employee Active?</label>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button type="submit" class="btn btn-default"
+							ng-click="saveChanges()">Save Changes</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
