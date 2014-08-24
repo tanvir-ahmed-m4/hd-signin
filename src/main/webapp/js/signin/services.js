@@ -16,6 +16,4 @@ angular.module('signin').factory('swipeServices', ['$http', function($http){
 			return '';
 		});
 	}
-	
-	
 }]);

@@ -3,10 +3,12 @@ package edu.helpdesk.signin.web.rest;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -65,8 +67,7 @@ public class SigninPageResource {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/swipe")
-	public Response doSwipe(final String data){
-		log.trace("doSwipe called with {}", data);
+	public Response doSwipe(@Context HttpServletRequest context, final String data){
 		return process(new WebTask() {
 			@Override
 			public Response doTask() {

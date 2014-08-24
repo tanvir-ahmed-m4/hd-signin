@@ -31,18 +31,26 @@
 	</properties>
 
 	<dependencies>
-		
+	
+		<!-- Needed for servlet API, like HTTPServletRequest -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+		</dependency>
+
+
 		<!-- CAS dependencies -->
 		<dependency>
-		    <groupId>org.jasig.cas.client</groupId>
-		    <artifactId>cas-client-core</artifactId>
-		    <version>3.3.3</version>
-		    <exclusions>
-		    	<exclusion>
-		    		<groupId>org.slf4j</groupId>
-		    		<artifactId>log4j-over-slf4j</artifactId>
-		    	</exclusion>
-		    </exclusions>
+			<groupId>org.jasig.cas.client</groupId>
+			<artifactId>cas-client-core</artifactId>
+			<version>3.3.3</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Database dependencies -->
