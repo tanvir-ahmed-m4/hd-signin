@@ -31,7 +31,22 @@
 	</properties>
 
 	<dependencies>
-	
+
+		<!-- Used for testing -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
+		</dependency>
+
+
 		<!-- Needed for servlet API, like HTTPServletRequest -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
