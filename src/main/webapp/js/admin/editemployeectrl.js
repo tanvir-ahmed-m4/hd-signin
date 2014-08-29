@@ -32,4 +32,9 @@ angular.module('admin').controller('EmployeeMgmtCtrl', ['$scope', 'employeeServi
 		addEmployees(response);
 		$scope.activeEmployee = $scope.employees[0];
 	});
+	
+	$scope.getDisplayName = function(employee){
+		return employee.firstName + ' ' + employee.lastName;
+	}
+	
 }]);

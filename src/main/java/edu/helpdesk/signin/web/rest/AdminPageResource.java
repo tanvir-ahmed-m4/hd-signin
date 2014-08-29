@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -30,6 +32,10 @@ import edu.helpdesk.signin.web.util.WebUtils;
 @Component
 @Path(PathConstants.ADMIN_PATH)
 public class AdminPageResource {
+	
+	@Autowired
+	private WebUtils utils;
+	
 	@Autowired
 	private EmployeeDao employeeDao;
 
@@ -43,7 +49,7 @@ public class AdminPageResource {
 			@Override
 			public Response doTask() {
 				SigninUser user = new SigninUser();
-				String netId = WebUtils.get().getAuthenticatedUser(request);
+				String netId = utils.getAuthenticatedUserNetid(request);
 
 				if(netId != null){
 					user.setNetId(netId);
@@ -77,26 +83,26 @@ public class AdminPageResource {
 			}
 		});
 	}
-	
-	
+
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employees")
 	public Response getAllEmployees(@QueryParam("filterinactive") final String filterInactiveStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
-			
+
 			@Override
 			public Response doTask() {
 				boolean filterInactive = parseBool(filterInactiveStr, true);
-				
+
 				List<Employee> employees = employeeDao.getAllEmployees();
-				
+
 				List<Employee> out = new ArrayList<>(employees.size());
-				
+
 				if(filterInactive){
 					for(int i = 0; i < employees.size(); i++){
 						Employee e = employees.get(i);
-						
+
 						if(e.getIsEmployeeActive()){
 							out.add(e);
 						}
@@ -105,12 +111,26 @@ public class AdminPageResource {
 				else{
 					out.addAll(employees);
 				}
-				
+
 				return Response.ok(out).build();
 			}
 		});
 	}
 	
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee")
+	public Response createEmployee(final Employee e){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+			
+			@Override
+			public Response doTask() {
+				Integer id = employeeDao.createEmployee(e);
+				return Response.ok(employeeDao.getEmployee(id)).build();
+			}
+		});
+	}
+
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_PATH + "/employee")
@@ -124,12 +144,22 @@ public class AdminPageResource {
 		});
 	}
 	
-	
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee")
+	public Response deleteEmployee(final Integer id){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+			@Override
+			public Response doTask() {
+				employeeDao.deleteEmployee(id);
+				return Response.ok().build();
+			}
+		});
+	}
+
 	private boolean parseBool(String val, boolean defaultVal){
 		if(Strings.isNullOrEmpty(val))
 			return defaultVal;
 		return Boolean.parseBoolean(val);
 	}
-	
-
 }

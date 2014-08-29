@@ -4,23 +4,46 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import edu.helpdesk.signin.dao.EmployeeDao;
+import edu.helpdesk.signin.model.dto.Employee;
 
 public class WebUtils {
 	private static final Logger log = LoggerFactory.getLogger(WebUtils.class);
-	private static final WebUtils INSTANCE = new WebUtils();
-
+	private static WebUtils INSTANCE;
 
 	public static WebUtils get(){
+		if(INSTANCE == null){
+			throw new NullPointerException("No instance has been set, check the Spring configuration");
+		}
 		return INSTANCE;
 	}
 
-	private WebUtils(){}
+	@Autowired
+	private EmployeeDao dao;
+	
+	
+	private WebUtils(){
+		INSTANCE = this;
+	}
 
-	public String getAuthenticatedUser(HttpServletRequest request){
+	public String getAuthenticatedUserNetid(HttpServletRequest request){
 		String out = null;
 		if(request != null)
 			out = request.getRemoteUser();
 		log.trace("Remote authenticated user for session '{}' is '{}'", getSessionId(request), out);
+		return out;
+	}
+	
+	public Employee getAuthenticatedUser(HttpServletRequest request){
+		String netId = this.getAuthenticatedUserNetid(request);
+		Employee out = null;
+		
+		if(netId != null){
+			out = dao.getEmployeeByNetId(netId);
+		}
+		
 		return out;
 	}
 
