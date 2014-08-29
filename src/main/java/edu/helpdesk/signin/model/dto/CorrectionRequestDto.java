@@ -1,20 +1,23 @@
-package edu.helpdesk.signin.model;
+package edu.helpdesk.signin.model.dto;
 
 import java.util.Date;
 
-import edu.helpdesk.signin.model.dto.Employee;
+import edu.helpdesk.signin.model.CorrectionRequest;
+import edu.helpdesk.signin.model.CorrectionRequestStatus;
 
 /**
- * 
+ * <h1>DO NOT USE THIS CLASS UNLESS YOU ARE USING SQL MAPPERS</h1>
+ * <br />
+ * Use {@link CorrectionRequest} instead
  * @author galen
  *
  */
-public class CorrectionRequest {
+public class CorrectionRequestDto {
 	private int id;
 	private CorrectionRequestStatus status;
 	private int signinId;
-	private Employee submitter;
-	private Employee completer;
+	private int submitter;
+	private int completer;
 	private Date newSigninTime;
 	private Date newSignoutTime;
 	private Date originalSigninTime;
@@ -37,16 +40,16 @@ public class CorrectionRequest {
 	public void setSigninId(int signinId) {
 		this.signinId = signinId;
 	}
-	public Employee getSubmitter() {
+	public int getSubmitter() {
 		return submitter;
 	}
-	public void setSubmitter(Employee submitter) {
+	public void setSubmitter(int submitter) {
 		this.submitter = submitter;
 	}
-	public Employee getCompleter() {
+	public int getCompleter() {
 		return completer;
 	}
-	public void setCompleter(Employee completer) {
+	public void setCompleter(int completer) {
 		this.completer = completer;
 	}
 	public Date getNewSigninTime() {
@@ -77,6 +80,7 @@ public class CorrectionRequest {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + completer;
 		result = prime * result + id;
 		result = prime * result
 				+ ((newSigninTime == null) ? 0 : newSigninTime.hashCode());
@@ -92,8 +96,7 @@ public class CorrectionRequest {
 						.hashCode());
 		result = prime * result + signinId;
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result
-				+ ((submitter == null) ? 0 : submitter.hashCode());
+		result = prime * result + submitter;
 		return result;
 	}
 	@Override
@@ -104,7 +107,9 @@ public class CorrectionRequest {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CorrectionRequest other = (CorrectionRequest) obj;
+		CorrectionRequestDto other = (CorrectionRequestDto) obj;
+		if (completer != other.completer)
+			return false;
 		if (id != other.id)
 			return false;
 		if (newSigninTime == null) {
@@ -131,21 +136,20 @@ public class CorrectionRequest {
 			return false;
 		if (status != other.status)
 			return false;
-		if (submitter == null) {
-			if (other.submitter != null)
-				return false;
-		} else if (!submitter.equals(other.submitter))
+		if (submitter != other.submitter)
 			return false;
 		return true;
 	}
 	@Override
 	public String toString() {
-		return "CorrectionRequest [id=" + id + ", status=" + status
+		return "CorrectionRequestDto [id=" + id + ", status=" + status
 				+ ", signinId=" + signinId + ", submitter=" + submitter
-				+ ", newSigninTime=" + newSigninTime + ", newSignoutTime="
-				+ newSignoutTime + ", originalSigninTime=" + originalSigninTime
+				+ ", completer=" + completer + ", newSigninTime="
+				+ newSigninTime + ", newSignoutTime=" + newSignoutTime
+				+ ", originalSigninTime=" + originalSigninTime
 				+ ", originalSignoutTime=" + originalSignoutTime + "]";
 	}
+	
 	
 	
 }

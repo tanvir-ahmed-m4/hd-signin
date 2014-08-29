@@ -39,7 +39,7 @@ CREATE TABLE `Employee` (
 
 	FOREIGN KEY (EmployeeTypeId) REFERENCES `EmployeeType` (`EmployeeTypeId`)
 
-) CHARSET = UTF8, ENGINE = InnoDB, AUTO_INCREMENT = 1;
+) CHARSET = UTF8, ENGINE = InnoDB;
 
 CREATE TABLE `SigninData` (
 	SigninDataId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -60,6 +60,7 @@ CREATE TABLE `CorrectionRequest` (
 	CorrectionRequestStatusId INT NOT NULL,
 	SigninDataId        INT NOT NULL,
 	SubmitterEmployeeId INT NOT NULL,
+	CompleterEmployeeId INT DEFAULT 0,
 	NewSigninTime       TIMESTAMP NOT NULL,
 	NewSignoutTime      TIMESTAMP NOT NULL,
 	OriginalSigninTime  TIMESTAMP NOT NULL,
@@ -82,4 +83,14 @@ INSERT INTO `CorrectionRequestStatus` (`CorrectionRequestStatusId`, `CorrectionR
 	(0, 'PENDING'),
 	(1, 'APPROVED'),
 	(2, 'DENIED');
+	
+INSERT INTO `Employee` 
+	(`EmployeeFirstName`, `EmployeeLastName`,
+	`EmployeeRiceId`, `EmployeeNetId`,
+	`EmployeeTypeId`, `EmployeeIsActive`)
+	VALUES
+	('Dummy', 'User',
+	'S00000000', 'aaa',
+	0, 0);
+
 

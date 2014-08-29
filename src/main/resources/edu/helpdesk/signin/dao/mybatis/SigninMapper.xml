@@ -2,14 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="edu.helpdesk.signin.dao.mybatis.SigninMapper">
 
-	<resultMap id="CorrectionRequestMapper" type="edu.helpdesk.signin.model.dto.Employee">
-		<result property="id" column="EmployeeId" />
-		<result property="firstName" column="EmployeeFirstName" />
-		<result property="lastName" column="EmployeeLastName" />
-		<result property="riceId" column="EmployeeRiceId" />
-		<result property="netId" column="EmployeeNetId" />
-		<result property="employeeType" column="EmployeeTypeName" />
-		<result property="isEmployeeActive" column="EmployeeIsActive" />
+	<resultMap id="CorrectionRequestMapper" type="edu.helpdesk.signin.model.dto.CorrectionRequestDto">
+		<id     property="id"                  column="CorrectionRequestId" />
+		<result property="status"              column="CorrectionRequestStatusName" />
+		<result property="signinId"            column="SigninDataId" />
+		<result property="submitter"           column="SubmitterEmployeeId" />
+		<result property="completer"           column="CompleterEmployeeId" />
+		<result property="newSigninTime"       column="NewSigninTime" />
+		<result property="newSignoutTime"      column="NewSignoutTime" />
+		<result property="originalSigninTime"  column="OriginalSigninTime" />
+		<result property="originalSignoutTime" column="OriginalSignoutTime" />
 	</resultMap>
 
 	<resultMap id="WorkSessionMapper" type="edu.helpdesk.signin.model.dto.WorkSession">
@@ -18,7 +20,21 @@
 		<result property="signinTime" column="SigninTime" />
 		<result property="signoutTime" column="SignoutTime" />
 	</resultMap>
-
+	
+	<sql id="CorrectionRequestSelectFragment">
+		SELECT
+			cr.CorrectionRequestId,
+			cs.CorrectionRequestStatusName,
+			cr.SigninDataId,
+			cr.SubmitterEmployeeId,
+			cr.CompleterEmployeeId,
+			cr.NewSigninTime,
+			cr.NewSignoutTime,
+			cr.OriginalSigninTime,
+			cr.OriginalSignoutTime
+		FROM CorrectionRequest AS cr
+		LEFT JOIN ON CorrectionRequestStatus AS cs WHERE cs.CorrectionRequestStatusId = cr.CorrectionRequestStatusId
+	</sql>
 
 
 	<select id="doSwipe" resultMap="WorkSessionMapper">
@@ -57,25 +73,65 @@
 		<include refid="edu.helpdesk.signin.dao.mybatis.EmployeeMapper.selectStatement" />
 		WHERE e.EmployeeId IN (SELECT EmployeeId FROM SigninData WHERE SignoutTime = 0);
 	</select>
-	<select id="createRequest" resultMap="CorrectionRequestMapper">
+	
+	<insert id="createRequest">
 		<!-- void createRequest(@Param("c") CorrectionRequest c); -->
-	</select>
+		INSERT INTO CorrectionRequest 
+			(CorrectionRequestStatusId, 
+			SigninDataId, 
+			SubmitterEmployeeId,
+			NewSigninTime, 
+			NewSignoutTime, 
+			OriginalSigninTime,
+			OriginalSignoutTime)
+		VALUES
+			(#{c.status.id},
+			#{c.signinId},
+			#{c.submitter.id},
+			#{c.newSigninTime},
+			#{c.newSignoutTime},
+			#{c.originalSigninTime},
+			#{c.originalSignoutTime})
+	</insert>
 
 	<update id="applyCorrectionRequest">
 		<!-- void applyCorrectionRequest(@Param("c") CorrectionRequest c); -->
+		SET @newStatus = (SELECT CorrectionRequestStatusId FROM CorrectionRequestStatus WHERE CorrectionRequestStatusName = 'APPROVED' LIMIT 1);
+		
+		UPDATE SigninData SET
+			SigninTime = #{c.newSigninTime},
+			SignoutTime = #{c.newSignoutTime},
+			CorrectionRequestStatusId = @newStatus
+		WHERE
+			CorrectionRequestId = #{c.id}
 	</update>
 
 	<update id="rejectCorrectionRequest">
 		<!-- void rejectCorrectionRequest(@Param("c") CorrectionRequest c); -->
+		UPDATE CorrectionRequest 
+		SET 
+			CorrectionRequestStatusId = #{newStatus.id},
+			CompleterEmployeeId = #{c.completer.id}
+		WHERE
+			CorrectionRequestId = #{c.id}
 	</update>
 
 	<select id="getAllCorrectionRequests" resultMap="CorrectionRequestMapper">
 		<!-- List<CorrectionRequest> getAllCorrectionRequests(); -->
+		<include refid="CorrectionRequestSelectFragment" />
 	</select>
 
 	<select id="getCorrectionRequestsByStatus" resultMap="CorrectionRequestMapper">
-		<!-- List<CorrectionRequest> getCorrectionRequestsByStatus(@Param("s") 
-			List<CorrectionStatus> s); -->
+		<!-- List<CorrectionRequest> getCorrectionRequestsByStatus(@Param("s") List<CorrectionStatus> s); -->
+		CREATE TEMPORARY TABLE Ids (CorrectionRequestStatusId INT) ENGINE=MEMORY; 
+		
+		<if test="s != null and s.size() > 0">
+			INSERT INTO Ids (CorrectionRequestStatusId) VALUES
+			(<foreach collection="s" item="item" separator=",">#{item.id}</foreach>);
+		</if>
+		
+		<include refid="CorrectionRequestSelectFragment" />
+		WHERE cr.CorrectionRequestStatusId IN Ids;
 	</select>
 
 </mapper>
