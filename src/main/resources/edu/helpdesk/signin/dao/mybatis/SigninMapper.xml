@@ -75,6 +75,8 @@
 	</select>
 	
 	<insert id="createRequest">
+	SET @newStatus = (SELECT CorrectionRequestStatusId FROM CorrectionRequestStatus WHERE CorrectionRequestStatusName = 'PENDING' LIMIT 1);
+	
 		<!-- void createRequest(@Param("c") CorrectionRequest c); -->
 		INSERT INTO CorrectionRequest 
 			(CorrectionRequestStatusId, 
@@ -85,7 +87,7 @@
 			OriginalSigninTime,
 			OriginalSignoutTime)
 		VALUES
-			(#{c.status.id},
+			(@newStatus,
 			#{c.signinId},
 			#{c.submitter.id},
 			#{c.newSigninTime},
@@ -98,19 +100,31 @@
 		<!-- void applyCorrectionRequest(@Param("c") CorrectionRequest c); -->
 		SET @newStatus = (SELECT CorrectionRequestStatusId FROM CorrectionRequestStatus WHERE CorrectionRequestStatusName = 'APPROVED' LIMIT 1);
 		
+		<!-- Update the timecard entry -->
 		UPDATE SigninData SET
 			SigninTime = #{c.newSigninTime},
 			SignoutTime = #{c.newSignoutTime},
 			CorrectionRequestStatusId = @newStatus
 		WHERE
-			CorrectionRequestId = #{c.id}
+			SigninDataId = #{c.signinId};
+		
+		<!-- Update the request -->
+		UPDATE CorrectionRequest 
+		SET 
+			CorrectionRequestStatusId = @newStatus,
+			CompleterEmployeeId = #{c.completer.id}
+		WHERE
+			CorrectionRequestId = #{c.id};
+			
 	</update>
 
 	<update id="rejectCorrectionRequest">
+		SET @newStatus = (SELECT CorrectionRequestStatusId FROM CorrectionRequestStatus WHERE CorrectionRequestStatusName = 'DENIED' LIMIT 1);
+	
 		<!-- void rejectCorrectionRequest(@Param("c") CorrectionRequest c); -->
 		UPDATE CorrectionRequest 
 		SET 
-			CorrectionRequestStatusId = #{newStatus.id},
+			CorrectionRequestStatusId = @newStatus,
 			CompleterEmployeeId = #{c.completer.id}
 		WHERE
 			CorrectionRequestId = #{c.id}

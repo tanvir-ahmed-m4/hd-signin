@@ -10,19 +10,19 @@ import edu.helpdesk.signin.model.dto.Employee;
  *
  */
 public class CorrectionRequest {
-	private int id;
+	private Integer id;
 	private CorrectionRequestStatus status;
-	private int signinId;
+	private Integer signinId;
 	private Employee submitter;
 	private Employee completer;
 	private Date newSigninTime;
 	private Date newSignoutTime;
 	private Date originalSigninTime;
 	private Date originalSignoutTime;
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 	public CorrectionRequestStatus getStatus() {
@@ -31,10 +31,10 @@ public class CorrectionRequest {
 	public void setStatus(CorrectionRequestStatus status) {
 		this.status = status;
 	}
-	public int getSigninId() {
+	public Integer getSigninId() {
 		return signinId;
 	}
-	public void setSigninId(int signinId) {
+	public void setSigninId(Integer signinId) {
 		this.signinId = signinId;
 	}
 	public Employee getSubmitter() {
@@ -73,11 +73,14 @@ public class CorrectionRequest {
 	public void setOriginalSignoutTime(Date originalSignoutTime) {
 		this.originalSignoutTime = originalSignoutTime;
 	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + id;
+		result = prime * result
+				+ ((completer == null) ? 0 : completer.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result
 				+ ((newSigninTime == null) ? 0 : newSigninTime.hashCode());
 		result = prime * result
@@ -90,7 +93,8 @@ public class CorrectionRequest {
 				* result
 				+ ((originalSignoutTime == null) ? 0 : originalSignoutTime
 						.hashCode());
-		result = prime * result + signinId;
+		result = prime * result
+				+ ((signinId == null) ? 0 : signinId.hashCode());
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		result = prime * result
 				+ ((submitter == null) ? 0 : submitter.hashCode());
@@ -105,7 +109,15 @@ public class CorrectionRequest {
 		if (getClass() != obj.getClass())
 			return false;
 		CorrectionRequest other = (CorrectionRequest) obj;
-		if (id != other.id)
+		if (completer == null) {
+			if (other.completer != null)
+				return false;
+		} else if (!completer.equals(other.completer))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
 			return false;
 		if (newSigninTime == null) {
 			if (other.newSigninTime != null)
@@ -127,7 +139,10 @@ public class CorrectionRequest {
 				return false;
 		} else if (!originalSignoutTime.equals(other.originalSignoutTime))
 			return false;
-		if (signinId != other.signinId)
+		if (signinId == null) {
+			if (other.signinId != null)
+				return false;
+		} else if (!signinId.equals(other.signinId))
 			return false;
 		if (status != other.status)
 			return false;

@@ -16,7 +16,7 @@ public interface SigninMapper {
 	WorkSession doSwipe(@Param("e") Employee e, @Param("date") Date time);
 	void createRequest(@Param("c") CorrectionRequest c);
 	void applyCorrectionRequest(@Param("c") CorrectionRequest c);
-	void rejectCorrectionRequest(@Param("c") CorrectionRequest c, @Param("newStatus") CorrectionRequestStatus status);
+	void rejectCorrectionRequest(@Param("c") CorrectionRequest c);
 	List<CorrectionRequest> getAllCorrectionRequests();
 	List<CorrectionRequest> getCorrectionRequestsByStatus(@Param("s") List<CorrectionRequestStatus> s);
 

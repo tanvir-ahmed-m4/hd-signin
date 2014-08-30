@@ -86,7 +86,7 @@ public class SigninPageResource {
 		Employee e = employeeDao.getEmployeeByRiceId(sid);
 
 		if(e != null){
-			WorkSession result = this.signinDao.swipe(e);
+			WorkSession result = this.signinDao.doToggleSigninStatus(e);
 			if(result.getSignoutTime() == null){
 				return new SigninResultSwipedINto(e.getFirstName() + " " + e.getLastName());
 			}
