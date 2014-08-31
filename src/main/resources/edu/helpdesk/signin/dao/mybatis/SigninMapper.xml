@@ -15,11 +15,27 @@
 	</resultMap>
 
 	<resultMap id="WorkSessionMapper" type="edu.helpdesk.signin.model.dto.WorkSession">
-		<id property="id" column="SigninDataId" />
+		<id property="id" column="Id" />
 		<result property="employeeId" column="EmployeeId" />
 		<result property="signinTime" column="SigninTime" />
 		<result property="signoutTime" column="SignoutTime" />
 	</resultMap>
+	
+	<sql id="deleteAllSigninSessionsForUser">
+		DELETE FROM SigninData
+		WHERE EmployeeId = @EmployeeId;
+	</sql>
+	
+	<sql id="deleteAllCorrectionRequestsForUser">
+		DELETE FROM CorrectionRequest
+		WHERE SubmitterEmployeeId = @EmployeeId;
+	</sql>
+	
+	<sql id="updateAllCorrectionRequestsApprovedByUser">
+		UPDATE CorrectionRequest
+		SET CompleterEmployeeId = NULL
+		WHERE CompleterEmployeeId = @EmployeeId;
+	</sql>
 	
 	<sql id="CorrectionRequestSelectFragment">
 		SELECT
@@ -33,9 +49,20 @@
 			cr.OriginalSigninTime,
 			cr.OriginalSignoutTime
 		FROM CorrectionRequest AS cr
-		LEFT JOIN ON CorrectionRequestStatus AS cs WHERE cs.CorrectionRequestStatusId = cr.CorrectionRequestStatusId
+		LEFT JOIN CorrectionRequestStatus AS cs ON cs.CorrectionRequestStatusId = cr.CorrectionRequestStatusId
 	</sql>
-
+	
+	<select id="getAllWorkSessionsForEmployee" resultMap="WorkSessionMapper">
+		<!-- List<WorkSession> getAllWorkSessionsForEmployee(@Param("id") Integer id, @Param("after") Date sessionStartsAfter, @Param("before") Date sessionStartsBefore); -->
+		SET @EmployeeId = #{id};
+		
+		SELECT SigninDataId AS Id, @EmployeeId AS EmployeeId, SigninTime, SignoutTime
+		FROM SigninData WHERE
+		EmployeeId = @EmployeeId AND
+		#{after} &lt; SigninTime AND
+		SigninTime &lt; #{before}
+		ORDER BY SigninTime DESC;
+	</select>
 
 	<select id="doSwipe" resultMap="WorkSessionMapper">
 		<!-- WorkSession doSwipe(@Param("e") Employee e, @Param("date") Date time); -->
@@ -74,10 +101,13 @@
 		WHERE e.EmployeeId IN (SELECT EmployeeId FROM SigninData WHERE SignoutTime = 0);
 	</select>
 	
-	<insert id="createRequest">
-	SET @newStatus = (SELECT CorrectionRequestStatusId FROM CorrectionRequestStatus WHERE CorrectionRequestStatusName = 'PENDING' LIMIT 1);
-	
+	<insert id="createRequest" keyProperty="c.id" keyColumn="CorrectionRequestId" useGeneratedKeys="true" >
 		<!-- void createRequest(@Param("c") CorrectionRequest c); -->
+		SET @SigninId = #{c.signinId};
+		SET @newStatus = (SELECT CorrectionRequestStatusId FROM CorrectionRequestStatus WHERE CorrectionRequestStatusName = 'PENDING' LIMIT 1);
+		SET @OldTimeIn = (SELECT SigninTime FROM SigninData WHERE SigninDataId = @SigninId);
+		SET @OldTimeOut = (SELECT SignoutTime FROM SigninData WHERE SigninDataId = @SigninId);
+		
 		INSERT INTO CorrectionRequest 
 			(CorrectionRequestStatusId, 
 			SigninDataId, 
@@ -88,12 +118,12 @@
 			OriginalSignoutTime)
 		VALUES
 			(@newStatus,
-			#{c.signinId},
+			@SigninId,
 			#{c.submitter.id},
 			#{c.newSigninTime},
 			#{c.newSignoutTime},
-			#{c.originalSigninTime},
-			#{c.originalSignoutTime})
+			@OldTimeIn,
+			@OldTimeOut)
 	</insert>
 
 	<update id="applyCorrectionRequest">
@@ -147,5 +177,12 @@
 		<include refid="CorrectionRequestSelectFragment" />
 		WHERE cr.CorrectionRequestStatusId IN Ids;
 	</select>
+	
+	<delete id="deleteCorrectionRequest_DEV_ONLY">
+		<!-- void deleteCorrectionRequest_DEV_ONLY(@Param("id") Integer correctionRequestId); -->
+		DELETE FROM CorrectionRequest
+		WHERE CorrectionRequestId = #{id}
+	
+	</delete>
 
 </mapper>

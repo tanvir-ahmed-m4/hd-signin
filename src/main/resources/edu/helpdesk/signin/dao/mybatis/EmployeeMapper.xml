@@ -50,7 +50,11 @@
 	</update>
 
 	<update id="deleteEmployee">
-		DELETE FROM Employee WHERE EmployeeId = #{employeeId}
+		SET @EmployeeId = #{employeeId};
+		<include refid="edu.helpdesk.signin.dao.mybatis.SigninMapper.updateAllCorrectionRequestsApprovedByUser" />
+		<include refid="edu.helpdesk.signin.dao.mybatis.SigninMapper.deleteAllCorrectionRequestsForUser" />
+		<include refid="edu.helpdesk.signin.dao.mybatis.SigninMapper.deleteAllSigninSessionsForUser" />
+		DELETE FROM Employee WHERE EmployeeId = @EmployeeId;
 	</update>
 
 	<insert id="createEmployee" keyProperty="template.id" keyColumn="EmployeeId" useGeneratedKeys="true" statementType="PREPARED">

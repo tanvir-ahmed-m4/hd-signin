@@ -28,11 +28,12 @@ public class SigninDao {
 		return mapper.doSwipe(e, new Date());
 	}
 
-	public CorrectionRequest createCorrectionRequest(CorrectionRequest request){
+	public Integer createCorrectionRequest(CorrectionRequest request){
 		request.setCompleter(null);
 		validateCorrectionRequest(request, false, false);
 		checkStatus(request, PENDING);
-		return request;
+		mapper.createRequest(request);
+		return request.getId();
 	}
 
 	public void applyCorrectionRequest(CorrectionRequest request){
@@ -59,6 +60,19 @@ public class SigninDao {
 		return mapper.getCorrectionRequestsByStatus(Arrays.asList(CorrectionRequestStatus.APPROVED, CorrectionRequestStatus.DENIED));
 	}
 
+	public List<WorkSession> getAllWorkSessionsForEmployee(Integer employeeId, Date date, Date date2) {
+		return mapper.getAllWorkSessionsForEmployee(employeeId, date, date);
+	}
+	
+	public List<WorkSession> getAllWorkSessionsForEmployee(Integer employeeId) {
+		return mapper.getAllWorkSessionsForEmployee(employeeId, new Date(0), new Date(System.currentTimeMillis()));
+	}
+	
+	public void deleteCorrectionRequest_DEV_ONLY(Integer id){
+		validateRequestId(id);
+		mapper.deleteCorrectionRequest_DEV_ONLY(id);
+	}
+	
 	private void checkStatus(CorrectionRequest c, CorrectionRequestStatus s){
 		Preconditions.checkArgument(s.equals(c.getStatus()), "Correction request must have status of " + s.name());
 	}
@@ -79,9 +93,9 @@ public class SigninDao {
 		Preconditions.checkArgument(r.getNewSignoutTime() != null, "New signout time cannot be null");
 		Preconditions.checkArgument(r.getNewSigninTime().before(r.getNewSignoutTime()), "New signout time must be after new signin time");
 		
-		Preconditions.checkArgument(r.getOriginalSigninTime() != null, "Original signin time cannot be null");
-		Preconditions.checkArgument(r.getOriginalSignoutTime() != null, "Original signout time cannot be null");
-		Preconditions.checkArgument(r.getOriginalSigninTime().before(r.getOriginalSignoutTime()), "Original signout time must be after original signin time");
+		//Preconditions.checkArgument(r.getOriginalSigninTime() != null, "Original signin time cannot be null");
+		//Preconditions.checkArgument(r.getOriginalSignoutTime() != null, "Original signout time cannot be null");
+		//Preconditions.checkArgument(r.getOriginalSigninTime().before(r.getOriginalSignoutTime()), "Original signout time must be after original signin time");
 		
 		Preconditions.checkArgument(r.getStatus() != null, "Correction request status cannot be null");
 		
@@ -97,4 +111,5 @@ public class SigninDao {
 	private void validateRequestId(int id){
 		Preconditions.checkArgument(id > 0, "ID must be greater than 0 (got " + id + ")");
 	}
+	
 }

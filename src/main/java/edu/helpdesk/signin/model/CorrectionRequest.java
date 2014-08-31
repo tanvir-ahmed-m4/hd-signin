@@ -19,9 +19,23 @@ public class CorrectionRequest {
 	private Date newSignoutTime;
 	private Date originalSigninTime;
 	private Date originalSignoutTime;
+	
+	public CorrectionRequest() {
+	}
+	
+	public CorrectionRequest(Employee submitter, Integer signinId, Date newSigninTime, Date newSignoutTime) {
+		this.setSubmitter(submitter);
+		this.setSigninId(signinId);
+		this.setNewSigninTime(newSigninTime);
+		this.setNewSignoutTime(newSignoutTime);
+		this.setStatus(CorrectionRequestStatus.PENDING);
+	}
+	
 	public Integer getId() {
 		return id;
 	}
+	
+	
 	public void setId(Integer id) {
 		this.id = id;
 	}

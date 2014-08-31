@@ -17,6 +17,8 @@ public interface SigninMapper {
 	void createRequest(@Param("c") CorrectionRequest c);
 	void applyCorrectionRequest(@Param("c") CorrectionRequest c);
 	void rejectCorrectionRequest(@Param("c") CorrectionRequest c);
+	List<WorkSession> getAllWorkSessionsForEmployee(@Param("id") Integer id, @Param("after") Date sessionStartsAfter, @Param("before") Date sessionStartsBefore);
+	void deleteCorrectionRequest_DEV_ONLY(@Param("id") Integer correctionRequestId);
 	List<CorrectionRequest> getAllCorrectionRequests();
 	List<CorrectionRequest> getCorrectionRequestsByStatus(@Param("s") List<CorrectionRequestStatus> s);
 

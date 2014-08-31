@@ -32,14 +32,14 @@ CREATE TABLE `Employee` (
 	EmployeeId        INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	EmployeeFirstName VARCHAR(128) NOT NULL,
 	EmployeeLastName  VARCHAR(128) NOT NULL,
-	EmployeeRiceId    VARCHAR(32) NOT NULL,
-	EmployeeNetId     VARCHAR(32) NOT NULL,
+	EmployeeRiceId    VARCHAR(32) NOT NULL UNIQUE,
+	EmployeeNetId     VARCHAR(32) NOT NULL UNIQUE,
 	EmployeeTypeId    INT NOT NULL,
 	EmployeeIsActive  BOOLEAN NOT NULL,
 
 	FOREIGN KEY (EmployeeTypeId) REFERENCES `EmployeeType` (`EmployeeTypeId`)
 
-) CHARSET = UTF8, ENGINE = InnoDB;
+) CHARSET = UTF8, ENGINE = InnoDB, AUTO_INCREMENT = 1;
 
 CREATE TABLE `SigninData` (
 	SigninDataId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
