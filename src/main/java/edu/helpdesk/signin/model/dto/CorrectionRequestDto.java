@@ -2,6 +2,8 @@ package edu.helpdesk.signin.model.dto;
 
 import java.util.Date;
 
+import com.google.common.base.Preconditions;
+
 import edu.helpdesk.signin.model.CorrectionRequest;
 import edu.helpdesk.signin.model.CorrectionRequestStatus;
 
@@ -148,6 +150,38 @@ public class CorrectionRequestDto {
 				+ newSigninTime + ", newSignoutTime=" + newSignoutTime
 				+ ", originalSigninTime=" + originalSigninTime
 				+ ", originalSignoutTime=" + originalSignoutTime + "]";
+	}
+	
+	public CorrectionRequest toCorrectionRequest(Employee submitter, Employee completer){
+		CorrectionRequest out = new CorrectionRequest();
+		
+		if(this.getSubmitter() != 0){
+			Preconditions.checkArgument(submitter != null, "Submitter null when it shouldn't be");
+			Preconditions.checkArgument(submitter.getId() == this.getSubmitter(), "Given submitter employee has inorrect ID");
+		}
+		else{
+			Preconditions.checkArgument(submitter == null, "Submitter not null when it should be");
+		}
+		
+		if(this.getCompleter() != 0){
+			Preconditions.checkArgument(completer != null, "Completer null when it shouldn't be");
+			Preconditions.checkArgument(completer.getId() == this.getCompleter(), "Given completer employee has inorrect ID");
+		}
+		else{
+			Preconditions.checkArgument(completer == null, "Completer not null when it should be");
+		}
+		
+		out.setCompleter(completer);
+		out.setId(this.getId());
+		out.setNewSigninTime(this.getNewSigninTime());
+		out.setNewSignoutTime(this.getNewSignoutTime());
+		out.setOriginalSigninTime(this.getOriginalSigninTime());
+		out.setOriginalSignoutTime(this.getOriginalSignoutTime());
+		out.setSigninId(this.getSigninId());
+		out.setStatus(this.getStatus());
+		out.setSubmitter(submitter);
+		
+		return out;
 	}
 	
 	

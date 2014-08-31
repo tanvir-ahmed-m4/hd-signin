@@ -63,6 +63,13 @@
 		SigninTime &lt; #{before}
 		ORDER BY SigninTime DESC;
 	</select>
+	
+	<select id="getWorkSession" resultMap="WorkSessionMapper">
+	<!-- WorkSession getWorkSession(@Param("id") Integer id); -->
+		SELECT SigninDataId AS Id, @EmployeeId AS EmployeeId, SigninTime, SignoutTime
+		FROM SigninData WHERE
+		SigninDataId = #{id};
+	</select>
 
 	<select id="doSwipe" resultMap="WorkSessionMapper">
 		<!-- WorkSession doSwipe(@Param("e") Employee e, @Param("date") Date time); -->
@@ -101,7 +108,13 @@
 		WHERE e.EmployeeId IN (SELECT EmployeeId FROM SigninData WHERE SignoutTime = 0);
 	</select>
 	
-	<insert id="createRequest" keyProperty="c.id" keyColumn="CorrectionRequestId" useGeneratedKeys="true" >
+	<select id="getCorrectionRequestById" resultMap="CorrectionRequestMapper">
+		<!-- CorrectionRequest getCorrectionRequestById(Integer id); -->
+		<include refid="CorrectionRequestSelectFragment" />
+		WHERE CorrectionRequestId = #{id};
+	</select>
+	
+	<select id="createRequest" resultType="java.lang.Integer">
 		<!-- void createRequest(@Param("c") CorrectionRequest c); -->
 		SET @SigninId = #{c.signinId};
 		SET @newStatus = (SELECT CorrectionRequestStatusId FROM CorrectionRequestStatus WHERE CorrectionRequestStatusName = 'PENDING' LIMIT 1);
@@ -123,8 +136,9 @@
 			#{c.newSigninTime},
 			#{c.newSignoutTime},
 			@OldTimeIn,
-			@OldTimeOut)
-	</insert>
+			@OldTimeOut);
+		SELECT LAST_INSERT_ID() AS Id;
+	</select>
 
 	<update id="applyCorrectionRequest">
 		<!-- void applyCorrectionRequest(@Param("c") CorrectionRequest c); -->
@@ -133,8 +147,7 @@
 		<!-- Update the timecard entry -->
 		UPDATE SigninData SET
 			SigninTime = #{c.newSigninTime},
-			SignoutTime = #{c.newSignoutTime},
-			CorrectionRequestStatusId = @newStatus
+			SignoutTime = #{c.newSignoutTime}
 		WHERE
 			SigninDataId = #{c.signinId};
 		
@@ -171,11 +184,11 @@
 		
 		<if test="s != null and s.size() > 0">
 			INSERT INTO Ids (CorrectionRequestStatusId) VALUES
-			(<foreach collection="s" item="item" separator=",">#{item.id}</foreach>);
+			<foreach collection="s" item="item" separator=",">(#{item.id})</foreach>;
 		</if>
 		
 		<include refid="CorrectionRequestSelectFragment" />
-		WHERE cr.CorrectionRequestStatusId IN Ids;
+		WHERE cr.CorrectionRequestStatusId IN (SELECT * FROM Ids);
 	</select>
 	
 	<delete id="deleteCorrectionRequest_DEV_ONLY">
