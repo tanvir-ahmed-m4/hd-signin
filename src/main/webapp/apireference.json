@@ -1,0 +1,23 @@
+{"apiEndpoints": [
+{"path": "/admin", 
+"subpaths": [
+	{"path": "/scclead/employee/{id}", "method": "POST", "paramClass": "java.lang.String"}, 
+	{"path": "/scclead/employee/{id}", "method": "POST", "paramClass": "java.lang.String"}, 
+	{"path": "/scclead/employee/{id}", "method": "GET"}, 
+	{"path": "/scclead/employee", "method": "PUT", "paramClass": "edu.helpdesk.signin.model.dto.Employee"}, 
+	{"path": "/scc/employee", "method": "POST", "paramClass": "edu.helpdesk.signin.model.dto.Employee"}, 
+	{"path": "/scclead/employee", "method": "DELETE", "paramClass": "java.lang.Integer"}, 
+	{"path": "/scclead/employees", "method": "GET", "queryParams": ["filterinactive"]}, 
+	{"path": "/scclead/correction/{id}", "method": "GET"}, 
+	{"path": "/scclead/correction", "method": "GET"}, 
+	{"path": "/scc/employee/{id}/correction", "method": "GET", "queryParams": ["includeResolved"]}, 
+	{"path": "/scclead/employee/{id}", "method": "PUT", "paramClass": "java.lang.String"}, 
+	{"path": "/scc/currentuser", "method": "GET", "description": "test"}, 
+	{"path": "/scclead/togglesignin", "method": "POST", "paramClass": "java.lang.String"}
+]}, 
+{"path": "/signin", 
+"subpaths": [
+	{"path": "/currentemployees", "method": "GET"}, 
+	{"path": "/swipe", "method": "POST", "paramClass": "java.lang.String"}
+]}
+]}
