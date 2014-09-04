@@ -116,13 +116,21 @@ public class HelpTextGenerator {
 	public void test() {
 		StringBuilder JSON = new StringBuilder();
 		
-		JSON.append("{\"apiEndpoints\": [\n");
+		JSON.append("{");
+		JSON.append("\"__comment\": \"THIS FILE IS AUTO GENERATED, DO NOT EDIT. Any changes will be overwritten. See " + this.getClass().getCanonicalName() + "\",\n");
+		JSON.append("\"apiEndpoints\": [\n");
 		for(int i = 0; i < DOCUMENTED_CLASSES.length; i++){
 			Class<?> c = DOCUMENTED_CLASSES[i];
 			String json = buildJsonObject(getRootPath(c), generateMethods(c));
-			JSON.append(json);
+			
+			for(String line : json.split("\n")){
+				JSON.append("\t");
+				JSON.append(line);
+				JSON.append("\n");
+			}
 			if(i < DOCUMENTED_CLASSES.length - 1){
-				JSON.append(", \n");
+				JSON.setCharAt(JSON.length() - 1, ',');
+				JSON.append("\n");
 			}
 		}
 		JSON.append("\n]}");
@@ -157,19 +165,20 @@ public class HelpTextGenerator {
 
 	private String buildJsonObject(String rootPath, List<HttpMethod> methods){
 		StringBuilder out = new StringBuilder();
-		out.append("{");
-		out.append(String.format("\"path\": \"%s\"", rootPath));
+		out.append("{\n");
+		out.append(String.format("\t\"path\": \"%s\"", rootPath));
 		out.append(", \n");
-		out.append("\"subpaths\": [\n");
+		out.append("\t\"subpaths\": [\n");
 
 		for(int i = 0; i < methods.size(); i++){
-			out.append(String.format("\t%s", methods.get(i).toJsonForm()));
+			out.append(String.format("\t\t%s", methods.get(i).toJsonForm()));
 			if(i < methods.size() - 1){
 				out.append(", \n");
 			}
 		}
 
-		out.append("\n]}");
+		out.append("\n\t]");
+		out.append("\n}");
 		return out.toString();
 	}
 
