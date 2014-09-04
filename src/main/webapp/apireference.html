@@ -1,16 +1,33 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="apiApp">
-  <head>
-    <meta charset="utf-8">
-    <title>Helpdesk Signin API reference</title>
-    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" charset="utf-8">
-    <link rel="stylesheet" href="css/bootstrap-theme.min.css" type="text/css" charset="utf-8">
-    <script type="text/javascript" src="js/lib/angular.min.js"></script>
-    <script type="text/javascript">
+<head>
+<meta charset="utf-8">
+<title>Helpdesk Signin API reference</title>
+
+<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" charset="utf-8">
+<link rel="stylesheet" href="css/bootstrap-theme.min.css" type="text/css" charset="utf-8">
+
+<script type="text/javascript" src="js/lib/angular.min.js"></script>
+<script type="text/javascript">
 	angular.module('apiApp', []).controller('ApiRefCtrl', ['$scope', '$http', function($scope, $http) {
 		
 		$scope.data = [];
 		$scope.base = '/signin/rest';
+		
+		$scope.toCsv = function(l){
+			if(!l)
+				return '';
+			
+			out = '';
+			for(var i = 0; i < l.length; i++){
+				out += l[i];
+				if(i < l.length - 1){
+					out += ', ';
+				}
+			}
+			return out;
+		}
+		
 		
 		$http.get('apireference.json').success(function(data){
 			$scope.data = data.apiEndpoints;
@@ -18,9 +35,17 @@
 		
 	}]);
 	</script>
-  </head>
+	<style type="text/css">
+	
+	body{
+		font-size: 13px;
+	
+	}
+	
+	</style>
+</head>
 <body ng-controller="ApiRefCtrl">
-	<div class="row">
+	<!-- <div class="row">
 		<div class="col-md-4">
 			
 		</div>
@@ -31,7 +56,7 @@
 					<div class="panel-heading">
 					    <h3 class="panel-title">{{base + path.path + apiRef.path}}</h3>
 					</div>
-					<!-- <div class="panel-body"></div> -->
+					<div class="panel-body"></div>
 					<ul class="list-group">
 					    <li ng-if="apiRef.method" class="list-group-item">Method: {{apiRef.method}}</li>
 					    <li ng-if="apiRef.description" class="list-group-item">Description: {{apiRef.description}}</li>
@@ -44,8 +69,40 @@
 		
 		<div class="col-md-4">
 		</div>
-		
-	</div>
+	</div> -->
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					    <h3 class="panel-title">API reference</h3>
+				</div>
+				<div class="table-responsive">
+					<table class="table table-striped" ng-repeat="path in data">
+						<thead>
+							<tr>
+								<th>URL</th>
+								<th>Method</th>
+								<th>Description</th>
+								<th>Parameter Class</th>
+								<th>Potential Query Parameters</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="apiRef in path.subpaths">
+							
+								<td style="white-space:nowrap;">{{base + path.path + apiRef.path}}</td>
+								<td>{{apiRef.method}}</td>
+								<td>{{apiRef.description}}</td>
+								<td>{{apiRef.paramClass}}</td>
+								<td>{{toCsv(apiRef.queryParams)}}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		</div>
 </body>
 </html>
 

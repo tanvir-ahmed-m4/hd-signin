@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +50,7 @@ public class HelpTextGenerator {
 	};
 
 	/** Helper class for generating JSON */
-	private static class HttpMethod{
+	private static class HttpMethod implements Comparable<HttpMethod>{
 		public String path = "";
 		public String method = "";
 		public String description = "";
@@ -109,6 +110,11 @@ public class HelpTextGenerator {
 			}
 			out.append("]");
 			return out.toString();
+		}
+
+		@Override
+		public int compareTo(HttpMethod o) {
+			return this.path.compareTo(o.path);
 		}
 	}
 
@@ -240,7 +246,7 @@ public class HelpTextGenerator {
 			}
 			methods.add(holder);
 		}
-
+		Collections.sort(methods);
 		return methods;
 	}
 
