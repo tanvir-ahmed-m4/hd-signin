@@ -29,7 +29,7 @@
 		}
 		
 		
-		$http.get('apireference.json').success(function(data){
+		$http.get('/signin/rest/docs/apireference').success(function(data){
 			$scope.data = data.apiEndpoints;
 		});
 		
