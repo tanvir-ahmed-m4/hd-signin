@@ -1,15 +1,15 @@
 angular.module('admin').factory('miscServices', ['$http', function($http){
 	
 	return {
-		forceSignout: forceSignout,
+		toggleSignin: toggleSignin,
 		getSignedInEmployees: getSignedInEmployees,
 		getSignedInUser: getSignedInUser
 	}
 	
-	function forceSignout(sid){
+	function toggleSignin(sid){
 		
 		return $http({
-			url: 'rest/admin/scclead/forcesignout',
+			url: '/signin/rest/admin/scclead/togglesignin',
 			method: 'POST',
 			data: sid
 		}).then(function(response){
@@ -81,7 +81,7 @@ angular.module('admin').factory('employeeServices', ['$http', function($http){
 		
 		return $http({
 			method: 'GET',
-			url: '/signin/rest/admin/scclead/employees',
+			url: '/signin/rest/admin/scclead/employee',
 			params: {'filterinactive': filterInactive}
 		}).then(function(response){
 			return response.data;
