@@ -3,7 +3,6 @@ package edu.helpdesk.signin.web.rest;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.DescriptorKey;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,8 +19,6 @@ import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.base.Strings;
-
 import edu.helpdesk.signin.dao.EmployeeDao;
 import edu.helpdesk.signin.dao.SigninDao;
 import edu.helpdesk.signin.model.dto.Employee;
@@ -37,8 +34,8 @@ import edu.helpdesk.signin.web.util.WebUtils;
 @Path(PathConstants.ADMIN_PATH)
 public class AdminPageResource {
 	private static final String GET_RESOLVED = "includeResolved";
-	
-	
+
+
 	@Autowired
 	private WebUtils utils;
 
@@ -51,7 +48,7 @@ public class AdminPageResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_PATH + "/currentuser")
-	@Description("test")
+	@Description("Get the currently signed in user")
 	public Response getSignedInUser(@Context final HttpServletRequest request){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
@@ -77,7 +74,8 @@ public class AdminPageResource {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/togglesignin")
-	public Response doForceSignout(final String employeeRiceId){
+	@Description("Toggle the signin status for the employee with the given Rice ID")
+	public Response doToggleSignin(final String employeeRiceId){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
 			@Override
@@ -87,17 +85,122 @@ public class AdminPageResource {
 				if(e == null){
 					return Response.ok(new SigninResultErrorNto(false, employeeRiceId, "Failed to find an employee with the id " + employeeRiceId + " in the database")).build();
 				}
-
+				// TODO
 				return null;
 			}
 		});
 	}
 
 
+	////////////////////////////////////////////////////////////////////////////
+	////////////////    Correction Request REST functions    ///////////////////
+	////////////////////////////////////////////////////////////////////////////
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employees")
-	public Response getAllEmployees(@QueryParam("filterinactive") final String filterInactiveStr){
+	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction/{id}")
+	@Description("Get the correction with the given ID")
+	public Response getCorrectionRequestById(@PathParam("id") final String idStr){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+			@Override
+			public Response doTask() {
+				Integer id = parseInt(idStr);
+				return Response.ok(signinDao.getCorrectionRequest(id)).build();
+			}
+		});
+	}
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction")
+	@Description("Get all correction requests. if " + GET_RESOLVED + " is set to true, resolved correction requests will be returned. Otherwise, only pending correction requests will be returned")
+	public Response getCorrectionRequests(@QueryParam(GET_RESOLVED) final String getResolvedStr){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+
+			@Override
+			public Response doTask() {
+				// TODO
+				return null;
+			}
+		});
+	}
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee/{id}/correction")
+	@Description("Get all correction requests for an employee")
+	public Response createCorrectionRequest(@PathParam("id") final String idStr, @QueryParam(GET_RESOLVED) final String getResolvedStr){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+
+			@Override
+			public Response doTask() {
+				// TODO
+				return null;
+			}
+		});
+	}
+	
+	
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_PATH + "/correction")
+	@Description("Create a new correction request")
+	public Response getCorrectionRequestsForEmployee(){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+
+			@Override
+			public Response doTask() {
+				// TODO
+				return null;
+			}
+		});
+	}
+
+	
+
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction/{id}/approve")
+	@Description("Approve a correction request")
+	public Response approveCorrectionRequest(@PathParam("id") final String idStr){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+
+			@Override
+			public Response doTask() {
+				// TODO
+				return null;
+			}
+		});
+	}
+	
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction/{id}/deny")
+	@Description("Deny a correction request")
+	public Response denyCorrectionRequest(@PathParam("id") final String idStr){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+			@Override
+			public Response doTask() {
+				// TODO
+				return null;
+			}
+		});
+	}
+
+
+
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////    Employee REST functions    /////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee")
+	@Description("Get all employees. If filterInactive is set to false, all "
+			+ "employees will be returned. Otherwise, only currently active "
+			+ "employees are returned")
+	public Response getAllEmployees(@QueryParam("filterInactive") final String filterInactiveStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
 			@Override
@@ -126,102 +229,10 @@ public class AdminPageResource {
 		});
 	}
 
-	////////////////////////////////////////////////////////////////////////////
-	////////////////    Correction Request REST functions    ///////////////////
-	////////////////////////////////////////////////////////////////////////////
-	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction/{id}")
-	public Response getCorrectionRequestById(@PathParam("id") final String idStr){
-		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
-			@Override
-			public Response doTask() {
-				Integer id = parseInt(idStr);
-				return Response.ok(signinDao.getCorrectionRequest(id)).build();
-			}
-		});
-	}
-	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction")
-	public Response getCorrectionRequests(@PathParam(GET_RESOLVED) final String getResolvedStr){
-		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
-
-			@Override
-			public Response doTask() {
-				boolean includeResolved = parseBool(getResolvedStr, false);
-				//JSONArray statusJSON = new JSONArray(status);
-				return null;//Response.ok(employeeDao.getEmployee(id)).build();
-			}
-		});
-	}
-	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_PATH + "/employee/{id}/correction")
-	public Response getCorrectionRequestsForEmployee(@PathParam("id") final String idStr, @QueryParam(GET_RESOLVED) final String getResolvedStr){
-		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
-
-			@Override
-			public Response doTask() {
-				Integer id = parseInt(idStr);
-				return Response.ok(employeeDao.getEmployee(id)).build();
-			}
-		});
-	}
-	
-	@PUT
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee/{id}")
-	public Response createCorrectionRequest(@PathParam("id") final String idStr){
-		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
-
-			@Override
-			public Response doTask() {
-				Integer id = parseInt(idStr);
-				return Response.ok(employeeDao.getEmployee(id)).build();
-			}
-		});
-	}
-	
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee/{id}")
-	public Response approveCorrectionRequest(@PathParam("id") final String idStr){
-		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
-
-			@Override
-			public Response doTask() {
-				Integer id = parseInt(idStr);
-				return Response.ok(employeeDao.getEmployee(id)).build();
-			}
-		});
-	}
-	
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee/{id}")
-	public Response denyCorrectionRequest(@PathParam("id") final String idStr){
-		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
-
-			@Override
-			public Response doTask() {
-				Integer id = parseInt(idStr);
-				return Response.ok(employeeDao.getEmployee(id)).build();
-			}
-		});
-	}
-	
-	
-	////////////////////////////////////////////////////////////////////////////
-	////////////////////    Employee REST functions    /////////////////////////
-	////////////////////////////////////////////////////////////////////////////
-
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee/{id}")
+	@Description("Get the employee with id {id}")
 	public Response getEmployee(@PathParam("id") final String idStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
@@ -236,6 +247,7 @@ public class AdminPageResource {
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee")
+	@Description("Create a new employee, using the given data")
 	public Response createEmployee(final Employee e){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
@@ -250,6 +262,7 @@ public class AdminPageResource {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_PATH + "/employee")
+	@Description("Update an existing employee using the given data")
 	public Response updateEmployee(final Employee e){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 			@Override
@@ -263,6 +276,7 @@ public class AdminPageResource {
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee")
+	@Description("Delete an employee with the given ID")
 	public Response deleteEmployee(final Integer id){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 			@Override
@@ -288,8 +302,10 @@ public class AdminPageResource {
 	}
 
 	private boolean parseBool(String val, boolean defaultVal){
-		if(Strings.isNullOrEmpty(val))
-			return defaultVal;
-		return Boolean.parseBoolean(val);
+		if("false".equalsIgnoreCase(val))
+			return false;
+		if("true".equalsIgnoreCase(val))
+			return true;
+		return defaultVal;
 	}
 }
