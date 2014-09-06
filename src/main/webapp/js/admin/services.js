@@ -86,3 +86,43 @@ angular.module('admin').factory('employeeServices', ['$http', function($http){
 	}
 	
 }]);
+
+angular.module('admin').factory('timecardServices', ['$http', function($http){
+	
+	return {
+		getCurrentTimecardForCurrentEmployee: getCurrentTimecardForCurrentEmployee,
+	}
+	
+	function getCurrentTimecardForCurrentEmployee(id){
+		return $http({
+			method: 'GET',
+			url: '/signin/rest/admin/scc/employee/' + id + '/timecard'
+		}).then(getPayload, processError);
+	}
+	
+}]);
+
+angular.module('admin').factory('correctionRequestServices', ['$http', function($http){
+	
+	return {
+		createCorrectionRequest: createCorrectionRequest,
+		getCorrectionRequestsForEmployee: getCorrectionRequestsForEmployee
+	}
+	
+	function getCorrectionRequestsForEmployee(employeeId){
+		return $http({
+			method: 'GET',
+			url: '/signin/rest/admin/scclead/employee/' + employeeId + '/correction'
+		}).then(getPayload, processError);
+		
+	}
+	
+	function createCorrectionRequest(request){
+		return $http({
+			method: 'PUT',
+			url: '/signin/rest/admin/scc/correction',
+			data: request
+		}).then(getPayload, processError);
+	}
+	
+}]);

@@ -1,1 +1,39 @@
-TIMECARD CONTENT
+<div class="container-fluid">
+	<div class="col-md-3"></div>
+	<div class="col-md-7">
+		<div>
+		
+		</div>
+		<div class="panel panel-default">
+  			<div class="panel-heading">Work Sessions</div>
+			<table class="table table-striped">
+				<tr>
+					<th>Signin Time</th>
+					<th>Signout Time</th>
+					<th>Duration</th>
+					<th></th>
+				</tr>
+				
+				<tr ng-repeat="workSession in timecard.workSessions" class="{{workSession.hasCorrectionRequest ? 'info' : ''}}">
+					<td ng-if="editedRow != $index">{{getStartTime(workSession)}}</td>
+					<td ng-if="editedRow != $index">{{getEndTime(workSession)}}</td>
+					<td ng-if="editedRow != $index">{{getDuration(workSession)}}</td>
+					<td ng-if="editedRow != $index">
+						<span ng-if="workSession.hasCorrectionRequest == true"><i>Correction request pending...</i></span>
+						<button ng-if="workSession.hasCorrectionRequest != true" class="btn btn-default" ng-click="editRow($index, workSession)">Edit</button>
+					</td>
+					
+					<td ng-if="editedRow == $index"><timepicker ng-model="workSessionBeingEdited.signinTime"></timepicker></td>
+					<td ng-if="editedRow == $index"><timepicker ng-model="workSessionBeingEdited.signoutTime"></timepicker></td>
+					<td ng-if="editedRow == $index">{{getDuration(workSessionBeingEdited)}}</td>
+					<td ng-if="editedRow == $index"><button class="btn btn-default" ng-click="submitCorrectionRequest()">{{getEditMsg()}}</button></td>
+					<td ng-if="editedRow == $index"><button class="btn btn-default" ng-click="cancelCorrectionRequest()">Cancel</button></td>
+					
+					
+				</tr>
+			</table>
+			
+			</div>
+	</div>
+	<div class="col-md-2"></div>
+</div>

@@ -16,12 +16,15 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import edu.helpdesk.signin.dao.EmployeeDao;
 import edu.helpdesk.signin.dao.SigninDao;
 import edu.helpdesk.signin.model.CorrectionRequest;
+import edu.helpdesk.signin.model.CorrectionRequestStatus;
 import edu.helpdesk.signin.model.dto.Employee;
 import edu.helpdesk.signin.model.dto.WorkSession;
 import edu.helpdesk.signin.model.nto.SigninResultErrorNto;
@@ -39,6 +42,7 @@ import edu.helpdesk.signin.web.util.WebUtils;
 @Component
 @Path(PathConstants.ADMIN_PATH)
 public class AdminPageResource {
+	private static final Logger log = LoggerFactory.getLogger(AdminPageResource.class);
 	private static final String GET_RESOLVED = "includeResolved";
 
 
@@ -67,9 +71,7 @@ public class AdminPageResource {
 					user.setNetId(netId);
 					Employee e = employeeDao.getEmployeeByNetId(netId);
 					if(e != null){
-						user.setFirstName(e.getFirstName());
-						user.setLastName(e.getLastName());
-						user.setType(e.getEmployeeType());
+						return Response.ok(e).build();
 					}
 				}
 				return Response.ok(user).build();
@@ -178,6 +180,7 @@ public class AdminPageResource {
 
 			@Override
 			public Response doTask() {
+				request.setStatus(CorrectionRequestStatus.PENDING);
 				return Response.ok(signinDao.getCorrectionRequest(signinDao.createCorrectionRequest(request))).build();
 			}
 		});

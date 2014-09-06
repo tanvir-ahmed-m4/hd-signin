@@ -5,6 +5,9 @@
 	<title>Helpdesk Administration</title>
 	<link rel="stylesheet" href="/signin/css/bootstrap.min.css" type="text/css" charset="utf-8">
 	<link rel="stylesheet" href="/signin/css/bootstrap-theme.min.css" type="text/css" charset="utf-8">
+	<style type="text/css">
+	.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+	</style>
 </head>
 <body>
 
@@ -30,14 +33,13 @@
 	<!-- ng-view will be swapped out for the different content sections -->
 	<ng-view></ng-view>
 
-	<footer>
-		<script type="text/javascript" src="/signin/js/lib/angular.min.js"></script>
-		<script type="text/javascript" src="/signin/js/admin/app.js"></script>
-		<script type="text/javascript" src="/signin/js/admin/navctrl.js"></script>
-		<script type="text/javascript" src="/signin/js/admin/services.js"></script>
-		<script type="text/javascript" src="/signin/js/admin/homecontroller.js"></script>
-		<script type="text/javascript" src="/signin/js/admin/editemployeectrl.js"></script>
-	</footer>
-
+	<script type="text/javascript" src="/signin/js/lib/angular.min.js"></script>
+	<script type="text/javascript" src="/signin/js/lib/ui-bootstrap-tpls-0.11.0.min.js"></script>
+	<script type="text/javascript" src="/signin/js/admin/app.js"></script>
+	<script type="text/javascript" src="/signin/js/admin/navctrl.js"></script>
+	<script type="text/javascript" src="/signin/js/admin/services.js"></script>
+	<script type="text/javascript" src="/signin/js/admin/homecontroller.js"></script>
+	<script type="text/javascript" src="/signin/js/admin/editemployeectrl.js"></script>
+	<script type="text/javascript" src="/signin/js/admin/timecardctrl.js"></script>
 </body>
 </html>

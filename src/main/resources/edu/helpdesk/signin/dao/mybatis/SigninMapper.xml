@@ -56,12 +56,12 @@
 		<!-- List<WorkSession> getAllWorkSessionsForEmployee(@Param("id") Integer id, @Param("after") Date sessionStartsAfter, @Param("before") Date sessionStartsBefore); -->
 		SET @EmployeeId = #{id};
 		
-		SELECT SigninDataId AS Id, @EmployeeId AS EmployeeId, SigninTime, SignoutTime
+		SELECT SigninDataId AS Id, @EmployeeId AS EmployeeId, SigninTime, IF(SignoutTime = 0, NULL, SignoutTime) AS SignoutTime
 		FROM SigninData WHERE
 		EmployeeId = @EmployeeId AND
 		#{after} &lt; SigninTime AND
 		SigninTime &lt; #{before}
-		ORDER BY SigninTime DESC;
+		ORDER BY SigninTime ASC;
 	</select>
 	
 	<select id="getWorkSession" resultMap="WorkSessionMapper">
