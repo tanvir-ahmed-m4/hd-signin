@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.helpdesk.signin.dao.mybatis.PayPeriodMapper">
+
+	<resultMap id="PayPeriodEndMapper" type="edu.helpdesk.signin.model.PeriodEnd">
+		<id     property="id"                  column="CorrectionRequestId" />
+		<result property="status"              column="CorrectionRequestStatusName" />
+		<result property="signinId"            column="SigninDataId" />
+		<result property="submitter"           column="SubmitterEmployeeId" />
+		<result property="completer"           column="CompleterEmployeeId" />
+		<result property="newSigninTime"       column="NewSigninTime" />
+		<result property="newSignoutTime"      column="NewSignoutTime" />
+		<result property="originalSigninTime"  column="OriginalSigninTime" />
+		<result property="originalSignoutTime" column="OriginalSignoutTime" />
+	</resultMap>
+
+	<resultMap id="PayPeriodMapper" type="edu.helpdesk.signin.model.PayPeriod">
+		<result property="startOfPeriod" column="Start" />
+		<result property="endOfPeriod" column="End" />
+	</resultMap>
+	
+	<!-- 
+	public Integer createPayPeriodEnd(@Param("end") PeriodEnd end);
+	public List<PeriodEnd> getAllPayPeriodEnds();
+	public PeriodEnd getPayPeriodEnd(@Param("id") Integer id);
+	public void updatePayPeriodEnd(@Param("end") PeriodEnd end);
+	public void deletePayPeriodEnd(@Param("id")Integer id);
+	public PayPeriod getPayPeriodForDate(@Param("d")Date d);
+	 -->
+	
+	<select id="getPayPeriodForDate" resultMap="PayPeriodMapper">
+		SET @date = #{d};
+		SET @PeriodStart = (SELECT PeriodEnd from PeriodEnd WHERE PeriodEnd &lt; @date ORDER BY PeriodEnd DESC LIMIT 1);
+		SET @PeriodEnd   = (SELECT PeriodEnd from PeriodEnd WHERE PeriodEnd &gt; @date ORDER BY PeriodEnd ASC  LIMIT 1);
+		SELECT @PeriodStart AS Start, @PeriodEnd AS End;
+	</select>
+	 
+
+
+</mapper>

@@ -31,6 +31,14 @@
 		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
 	</bean>
 	
+	<bean id="payPeriodDao" class="edu.helpdesk.signin.dao.PayPeriodDao" />
+	<bean id="payPeriodMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="edu.helpdesk.signin.dao.mybatis.PayPeriodMapper" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+	
+	
+	
 	
 
 </beans>

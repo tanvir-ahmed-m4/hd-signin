@@ -9,4 +9,5 @@
 
 	<bean id="webUtil" class="edu.helpdesk.signin.web.util.WebUtils" />
 
+	<bean id="timecardFactory" class="edu.helpdesk.signin.services.TimecardFactory" />
 </beans>

@@ -70,7 +70,7 @@ public class SigninDao {
 	}
 
 	public List<WorkSession> getAllWorkSessionsForEmployee(Integer employeeId, Date date, Date date2) {
-		return mapper.getAllWorkSessionsForEmployee(employeeId, date, date);
+		return mapper.getAllWorkSessionsForEmployee(employeeId, date, date2);
 	}
 
 	public List<WorkSession> getAllWorkSessionsForEmployee(Integer employeeId) {

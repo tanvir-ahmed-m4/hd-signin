@@ -29,6 +29,7 @@ import edu.helpdesk.signin.model.nto.SigninResultNto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedINto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedOutNto;
 import edu.helpdesk.signin.model.nto.SigninUser;
+import edu.helpdesk.signin.services.TimecardFactory;
 import edu.helpdesk.signin.web.util.Description;
 import edu.helpdesk.signin.web.util.PathConstants;
 import edu.helpdesk.signin.web.util.WebTask;
@@ -343,6 +344,25 @@ public class AdminPageResource {
 		});
 	}
 
+
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////    Timecard REST functions    /////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_PATH + "/employee/{id}/timecard")
+	@Description("Gets a timecard")
+	public Response getTimecard(@PathParam("id") final Integer id){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+			@Override
+			public Response doTask() {
+				return Response.ok(TimecardFactory.get().getCurrentTimecard(employeeDao.getEmployee(id))).build();
+			}
+		});
+	}
+
+	
 
 	////////////////////////////////////////////////////////////////////////////
 	//////////////////    Internal helper functions    /////////////////////////
