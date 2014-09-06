@@ -98,7 +98,7 @@
 
 		SET @row = (SELECT SigninDataId FROM SigninData WHERE EmployeeId = @eid AND SignoutTime = 0);
 		
-		SET @row = doInsert(@row, @eid, @date);
+		SET @row = doSwipe(@row, @eid, @date);
 		
 		SELECT SigninDataId, EmployeeId, SigninTime, IF(SignoutTime = 0, NULL, SignoutTime) AS SignoutTime FROM SigninData WHERE SigninDataId = @row;
 	</select>
