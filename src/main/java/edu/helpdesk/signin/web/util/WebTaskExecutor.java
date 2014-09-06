@@ -11,6 +11,7 @@ public class WebTaskExecutor {
 	private static final Logger log = LoggerFactory.getLogger(WebTaskExecutor.class);
 
 	private static final int BAD_REQUEST = 400;
+	private static final int SERVER_ERROR = 500;
 	
 	private static class ServerErrorResponse{
 		private String error;
@@ -37,8 +38,9 @@ public class WebTaskExecutor {
 			log.info("Exception processing web task, likely user error: {}", e.getLocalizedMessage());
 			return getErrorResponse(e.getLocalizedMessage());
 		}catch(Exception e){
-			log.warn("Exception processing web task, likely server error. Tag: {}",UUID.randomUUID(), e);
-			return Response.serverError().build();
+			String tag = UUID.randomUUID().toString();
+			log.warn("Exception processing web task, likely server error. Tag: {}", tag, e);
+			return Response.ok(new ServerErrorResponse(String.format("Internal Server error (tag %s)", tag))).status(SERVER_ERROR).build();
 		}
 	}
 
