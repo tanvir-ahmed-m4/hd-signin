@@ -1,3 +1,19 @@
+var processError = function(response){
+	console.log('Got error: ' + JSON.stringify(response));
+	var msg = '';
+	
+	var payload = getPayload(response);
+	if(payload.data){
+		msg = payload.data;
+	}else{
+		msg = response.statusText;
+	}
+	
+	return {'error': msg, 'code': response.status};
+}
+var getPayload = function(response){
+	return response.data;
+}
 angular.module('admin').factory('miscServices', ['$http', function($http){
 	
 	return {
@@ -12,36 +28,21 @@ angular.module('admin').factory('miscServices', ['$http', function($http){
 			url: '/signin/rest/admin/scclead/togglesignin',
 			method: 'POST',
 			data: sid
-		}).then(function(response){
-			return response.data;
-		}, function(error){
-			console.log('got error: ' + JSON.stringify(error));
-			return '';
-		});
+		}).then(getPayload, processError);
 	}
 	
 	function getSignedInEmployees(){
 		return $http({
 			url: '/signin/rest/signin/currentemployees',
 			method: 'GET',
-		}).then(function(response){
-			return response.data;
-		}, function(error){
-			console.log('got error: ' + JSON.stringify(error));
-			return '';
-		});
+		}).then(getPayload, processError);
 	}
 	
 	function getSignedInUser(){
 		return $http({
 			url: '/signin/rest/admin/scc/currentuser',
 			method: 'GET',
-		}).then(function(response){
-			return response.data;
-		}, function(error){
-			console.log('got error: ' + JSON.stringify(error));
-			return '';
-		});
+		}).then(getPayload, processError);
 	}
 }]);
 
@@ -63,11 +64,7 @@ angular.module('admin').factory('employeeServices', ['$http', function($http){
 			method: 'POST',
 			url: '/signin/rest/admin/scc/employee',
 			data: employee
-		}).then(function(response){
-			return response.data;
-		}, function(error){
-			console.log('Got an error: ' + JSON.stringify(error));
-		});
+		}).then(getPayload, processError);
 	}
 	
 	function deleteEmployee(id){
@@ -83,11 +80,7 @@ angular.module('admin').factory('employeeServices', ['$http', function($http){
 			method: 'GET',
 			url: '/signin/rest/admin/scclead/employee',
 			params: {'filterinactive': filterInactive}
-		}).then(function(response){
-			return response.data;
-		}, function(error){
-			console.log('Got an error: ' + JSON.stringify(error));
-		});
+		}).then(getPayload, processError);
 		
 		
 	}
