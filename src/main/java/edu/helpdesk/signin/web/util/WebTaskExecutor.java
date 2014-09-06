@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 public class WebTaskExecutor {
 	private static final Logger log = LoggerFactory.getLogger(WebTaskExecutor.class);
 
+	private static final int BAD_REQUEST = 400;
+	
 	private static class ServerErrorResponse{
 		private String error;
 
@@ -32,7 +34,7 @@ public class WebTaskExecutor {
 		try{
 			return task.doTask();
 		}catch(IllegalArgumentException e){
-			log.info("Exception processing web task, likely user error. Tag: {}", UUID.randomUUID(), e);
+			log.info("Exception processing web task, likely user error: {}", e.getLocalizedMessage());
 			return getErrorResponse(e.getLocalizedMessage());
 		}catch(Exception e){
 			log.warn("Exception processing web task, likely server error. Tag: {}",UUID.randomUUID(), e);
@@ -41,7 +43,7 @@ public class WebTaskExecutor {
 	}
 
 	private static Response getErrorResponse(String msg){
-		return Response.ok(new ServerErrorResponse(msg)).status(401).build();
+		return Response.ok(new ServerErrorResponse(msg)).status(BAD_REQUEST).build();
 	}
 
 
