@@ -146,9 +146,10 @@ angular.module('signin').controller('SigninCtrl', ['$scope', '$interval', 'swipe
 	
 	updateSignedInEmployeeData();
 
+	/* Update the signed in employees list once a minute */
 	$interval(function(){
 		updateSignedInEmployeeData();
-	}, 2000);
+	}, 60000);
 	
 	document.getElementById('sidfield').focus();
 }]);
