@@ -9,14 +9,13 @@
 
 <script type="text/javascript" src="js/lib/angular.min.js"></script>
 <script type="text/javascript">
-	angular.module('apiApp', []).controller('ApiRefCtrl', ['$scope', '$http', function($scope, $http) {
+	angular.module('apiApp', []).controller('ApiRefCtrl', ['$scope', '$http', '$location', function($scope, $http, $location) {
 		
 		$scope.data = [];
 		$scope.base = '/signin/rest';
 		
 		$scope.toCsv = function(l){
-			if(!l)
-				return '';
+			if(!l) return '';
 			
 			out = '';
 			for(var i = 0; i < l.length; i++){
@@ -28,81 +27,54 @@
 			return out;
 		}
 		
+		$scope.getHost = function(){
+			return $location.protocol() + '://' + $location.host() + ':' + $location.port();
+		}
 		
 		$http.get('/signin/rest/docs/apireference').success(function(data){
 			$scope.data = data.apiEndpoints;
 		});
-		
 	}]);
 	</script>
 	<style type="text/css">
-	
 	body{
 		font-size: 13px;
-	
 	}
-	
 	</style>
 </head>
 <body ng-controller="ApiRefCtrl">
-	<!-- <div class="row">
-		<div class="col-md-4">
-			
-		</div>
-		
-		<div class="col-md-4" >
-			<div ng-repeat="path in data">
-				<div class="panel panel-primary" ng-repeat="apiRef in path.subpaths">
-					<div class="panel-heading">
-					    <h3 class="panel-title">{{base + path.path + apiRef.path}}</h3>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="panel panel-primary">
+					<div class="panel-heading"><h3 class="panel-title">API reference</h3></div>
+					<div class="table-responsive">
+						<table class="table table-striped" ng-repeat="path in data">
+							<thead>
+								<tr>
+									<th>URL</th>
+									<th>Method</th>
+									<th>Description</th>
+									<th>Parameter Class</th>
+									<th>Potential Query Parameters</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="apiRef in path.subpaths">
+									<td ng-if="apiRef.method == 'GET'" style="white-space:nowrap;"><a href="{{getHost() + base + path.path + apiRef.path}}">{{base + path.path + apiRef.path}}</a></td>
+									<td ng-if="apiRef.method != 'GET'" style="white-space:nowrap;">{{base + path.path + apiRef.path}}</td>
+									<td>{{apiRef.method}}</td>
+									<td>{{apiRef.description}}</td>
+									<td>{{apiRef.paramClass}}</td>
+									<td>{{toCsv(apiRef.queryParams)}}</td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
-					<div class="panel-body"></div>
-					<ul class="list-group">
-					    <li ng-if="apiRef.method" class="list-group-item">Method: {{apiRef.method}}</li>
-					    <li ng-if="apiRef.description" class="list-group-item">Description: {{apiRef.description}}</li>
-					    <li ng-if="apiRef.paramClass" class="list-group-item">Parameter Class: {{apiRef.paramClass}}</li>
-					    <li ng-if="apiRef.queryParams" class="list-group-item">Query Parameters: {{apiRef.queryParams}}</li>
-					</ul>
 				</div>
 			</div>
 		</div>
-		
-		<div class="col-md-4">
-		</div>
-	</div> -->
-<div class="container">
-	<div class="row">
-		<div class="col-md-12">
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					    <h3 class="panel-title">API reference</h3>
-				</div>
-				<div class="table-responsive">
-					<table class="table table-striped" ng-repeat="path in data">
-						<thead>
-							<tr>
-								<th>URL</th>
-								<th>Method</th>
-								<th>Description</th>
-								<th>Parameter Class</th>
-								<th>Potential Query Parameters</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr ng-repeat="apiRef in path.subpaths">
-							
-								<td style="white-space:nowrap;">{{base + path.path + apiRef.path}}</td>
-								<td>{{apiRef.method}}</td>
-								<td>{{apiRef.description}}</td>
-								<td>{{apiRef.paramClass}}</td>
-								<td>{{toCsv(apiRef.queryParams)}}</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-		</div>
+	</div>
 </body>
 </html>
 
