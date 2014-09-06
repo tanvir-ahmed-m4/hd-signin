@@ -7,40 +7,88 @@
     <link rel="stylesheet" href="css/bootstrap-theme.min.css" type="text/css" charset="utf-8">
     
     <style>
-    body {
-    	background-color: #333;
-    	color: #aaa;
-    }
+    
+	body {
+	  background-color: #333;
+	  color: #aaa;
+	}
+	
+	.navbar-static-top {
+		margin-bottom: 19px;
+	}
+	
+	html {
+	  position: relative;
+	  min-height: 100%;
+	}
+	body {
+	  /* Margin bottom by footer height */
+	  margin-bottom: 270px;
+	}
+	
+	.footer {
+	  position: absolute;
+	  bottom: 0;
+	  width: 100%;
+	  /* Set the fixed height of the footer here */
+	  height: 270px;
+	}
+	
     </style>
   </head>
 <body ng-controller="SigninCtrl">
-	<div class="row" style="height: 60px" >
-	</div>
-	<div class="row">
-		<div class="col-md-4">
-		</div>
-		<div class="col-md-4">
-			<div class="form-inline">
-				<input id="sidfield" type="text" placeholder="Student ID" class="input-large form-control" ng-model="swiper" ng-enter="doSwipe()">
-				<button class="btn btn-default" ng-click="doSwipe()">Swipe</button>
+	<div class="navbar signin-navbar navbar-default navbar-static-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand">Helpdesk Signin</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/signin/admin"><u>Login to Administrative Interface</u></a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    
+	<div class="container-fluid content">
+		<div class="row">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<div class="form-inline">
+					<input id="sidfield" type="text" placeholder="Student ID" class="input-large form-control" ng-model="swiper" ng-enter="doSwipe()">
+					<button class="btn btn-default" ng-click="doSwipe()">Swipe</button>
+					<h1 style="display:inline; vertical-align: middle;">
+						<span ng-if="showSuccess" style="color: green; vertical-align: top;" class="glyphicon glyphicon-ok"></span>
+						<span ng-if="showError" style="color: red; vertical-align: top;" class="glyphicon glyphicon-remove"></span>
+					</h1>
+				</div>
+				<div id="msg1">{{message1}}</div>
+				<div id="msg2">{{message2}}</div>
+				<div id="msg3">{{message3}}</div>
+				<div id="msg4">{{message4}}</div>
 			</div>
-			<div id="msg">
-				{{message}}
-			</div>
-			
+			<div class="col-md-4"></div>
 		</div>
-		<div class="col-md-4">
-		<a href="/signin/admin">Signin</a>
-		</div>
-		
 	</div>
+	
+	<div class="footer">
+      <div class="container">
+        <div class="col-md-4">
         
-	<footer>
-		<script type="text/javascript" src="js/lib/angular.min.js"></script>
-		<script type="text/javascript" src="js/signin/app.js"></script>
-		<script type="text/javascript" src="js/signin/controller.js"></script>
-		<script type="text/javascript" src="js/signin/services.js"></script>
-	</footer>
-
+        	<ul class="list-unstyled">
+        		<li><b>Currently Signed in Employees</b></li>
+        		<li ng-if="noEmployees()"><i>No Employees currently signed in</i></li>
+				<li ng-repeat="employee in employees">{{employee.name}}</li>        	
+        	</ul>
+        </div>
+        <div class="col-md-8"></div>
+      </div>
+    </div>
+	
+	<script type="text/javascript" src="js/lib/angular.min.js"></script>
+	<script type="text/javascript" src="js/signin/app.js"></script>
+	<script type="text/javascript" src="js/signin/controller.js"></script>
+	<script type="text/javascript" src="js/signin/services.js"></script>
+	<!-- The truth is out there -->
 </body>
 </html>

@@ -21,8 +21,13 @@ import org.springframework.stereotype.Component;
 
 import edu.helpdesk.signin.dao.EmployeeDao;
 import edu.helpdesk.signin.dao.SigninDao;
+import edu.helpdesk.signin.model.CorrectionRequest;
 import edu.helpdesk.signin.model.dto.Employee;
+import edu.helpdesk.signin.model.dto.WorkSession;
 import edu.helpdesk.signin.model.nto.SigninResultErrorNto;
+import edu.helpdesk.signin.model.nto.SigninResultNto;
+import edu.helpdesk.signin.model.nto.SigninResultSwipedINto;
+import edu.helpdesk.signin.model.nto.SigninResultSwipedOutNto;
 import edu.helpdesk.signin.model.nto.SigninUser;
 import edu.helpdesk.signin.web.util.Description;
 import edu.helpdesk.signin.web.util.PathConstants;
@@ -81,12 +86,22 @@ public class AdminPageResource {
 			@Override
 			public Response doTask() {
 				Employee e = employeeDao.getEmployeeByRiceId(employeeRiceId);
+				SigninResultNto out;
 
 				if(e == null){
-					return Response.ok(new SigninResultErrorNto(false, employeeRiceId, "Failed to find an employee with the id " + employeeRiceId + " in the database")).build();
+					out = new SigninResultErrorNto(false, employeeRiceId, "Failed to find an employee with the id " + employeeRiceId + " in the database");
 				}
-				// TODO
-				return null;
+				else{
+					WorkSession session = signinDao.doToggleSigninStatus(e);
+
+					if(session.getSignoutTime() == null){
+						out = new SigninResultSwipedINto(e.getFirstName());
+					}
+					else{
+						out = new SigninResultSwipedOutNto((int) (session.getSignoutTime().getTime() - session.getSigninTime().getTime()), 0, "BUTTS", e.getFirstName());
+					}
+				}
+				return Response.ok(out).build();
 			}
 		});
 	}
@@ -119,8 +134,8 @@ public class AdminPageResource {
 
 			@Override
 			public Response doTask() {
-				// TODO
-				return null;
+				boolean includeResolved = parseBool(getResolvedStr, false);
+				return Response.ok(getCorrectionRequestsInternal(includeResolved)).build();
 			}
 		});
 	}
@@ -134,55 +149,96 @@ public class AdminPageResource {
 
 			@Override
 			public Response doTask() {
-				// TODO
-				return null;
+				boolean includeResolved = parseBool(getResolvedStr, false);
+				int employeeId = parseInt(idStr);
+				List<CorrectionRequest> allCorrections = getCorrectionRequestsInternal(includeResolved);
+				List<CorrectionRequest> out = new ArrayList<>();
+
+				for(int i = 0; i < allCorrections.size(); i++){
+					CorrectionRequest c = allCorrections.get(i);
+
+					if(c.getSubmitter().getId() == employeeId){
+						out.add(c);
+					}
+				}
+
+				return Response.ok(out).build();
 			}
 		});
 	}
-	
-	
+
+
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_PATH + "/correction")
 	@Description("Create a new correction request")
-	public Response getCorrectionRequestsForEmployee(){
+	public Response getCorrectionRequestsForEmployee(final CorrectionRequest request){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
 			@Override
 			public Response doTask() {
-				// TODO
-				return null;
+				return Response.ok(signinDao.getCorrectionRequest(signinDao.createCorrectionRequest(request))).build();
 			}
 		});
 	}
 
-	
+
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction/{id}/approve")
 	@Description("Approve a correction request")
-	public Response approveCorrectionRequest(@PathParam("id") final String idStr){
+	public Response approveCorrectionRequest(@Context final HttpServletRequest ajaxRequest, @PathParam("id") final String idStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
 			@Override
 			public Response doTask() {
-				// TODO
-				return null;
+				CorrectionRequest request = signinDao.getCorrectionRequest(parseInt(idStr));
+				Employee e = utils.getAuthenticatedUser(ajaxRequest);
+
+				if(request == null){
+					//TODO error handling
+					return null;
+				}
+
+				if(e == null){
+					//TODO error handling
+					return null;
+				}
+
+				request.setCompleter(e);
+				signinDao.applyCorrectionRequest(request);
+
+				return Response.ok(signinDao.getCorrectionRequest(request.getId())).build();
 			}
 		});
 	}
-	
+
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction/{id}/deny")
 	@Description("Deny a correction request")
-	public Response denyCorrectionRequest(@PathParam("id") final String idStr){
+	public Response denyCorrectionRequest(@Context final HttpServletRequest ajaxRequest, @PathParam("id") final String idStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 			@Override
 			public Response doTask() {
-				// TODO
-				return null;
+				CorrectionRequest request = signinDao.getCorrectionRequest(parseInt(idStr));
+				Employee e = utils.getAuthenticatedUser(ajaxRequest);
+
+				if(request == null){
+					//TODO error handling
+					return null;
+				}
+
+				if(e == null){
+					//TODO error handling
+					return null;
+				}
+
+				request.setCompleter(e);
+				signinDao.rejectCorrectionRequest(request);
+
+				return Response.ok(signinDao.getCorrectionRequest(request.getId())).build();
 			}
 		});
 	}
@@ -291,6 +347,20 @@ public class AdminPageResource {
 	////////////////////////////////////////////////////////////////////////////
 	//////////////////    Internal helper functions    /////////////////////////
 	////////////////////////////////////////////////////////////////////////////
+
+	private List<CorrectionRequest> getCorrectionRequestsInternal(boolean includeResolved){
+		List<CorrectionRequest> out;
+
+		if(includeResolved){
+			out = signinDao.getAllCorrectionRequests();
+		}
+		else{
+			out = signinDao.getAllPendingCorrectionRequests();
+		}
+
+		return out;
+	}
+
 
 	private Integer parseInt(String val){
 		try{
