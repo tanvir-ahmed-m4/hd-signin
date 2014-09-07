@@ -1,4 +1,5 @@
 angular.module('admin').controller('AdminNavCtrl', ['$scope', '$location', 'miscServices',  function($scope, $location, miscServices){
+	$scope.logoutUrl = '/signin/cas_logout?service=' + encodeURIComponent($location.protocol() + '://' + $location.host() + ':' + $location.port() + '/signin');
 	$scope.username = '';
 	$scope.usermsg = 'loading user...';
 	$scope.type = '';
@@ -6,8 +7,7 @@ angular.module('admin').controller('AdminNavCtrl', ['$scope', '$location', 'misc
 	$scope.isActive = function(name){
 		return '/' + name == $location.path();
 	}
-
-
+	
 	miscServices.getSignedInUser().then(function(response){
 		if(response.error){
 
