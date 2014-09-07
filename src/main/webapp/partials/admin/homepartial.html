@@ -1,16 +1,35 @@
-<div>
-	
-	<ul>
-	<li ng-repeat="e in signedInEmployees">{{e}}</li>
-	
-	
-	</ul>
-
-
-
-
-
-
-
-
+<div ng-if="user == null" class="loading-screen">
+	Loading...
+</div>
+<div class="container-fluid" ng-if="user != null">
+	<div class="col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">Pending Correction Requests</div>
+			<table class="table table-striped">
+				<thead>
+					<th>Employee</th>
+					<th>Original time in</th>
+					<th>Original time </th>
+					<th>Original Duration</th>
+					<th>New time in</th>
+					<th>New time out</th>
+					<th>New Duration</th>
+					<th></th>
+				</thead>
+				<tbody>
+					<tr ng-repeat="correction in corrections">
+					<td>{{correction.submitter.firstName}}</td>
+					<td>{{formatDate(correction.originalSigninTime)}}</td>
+					<td>{{formatDate(correction.originalSignoutTime)}}</td>
+					<td>{{getOriginalDuration(correction)}}</td>
+					<td>{{formatDate(correction.newSigninTime)}}</td>
+					<td>{{formatDate(correction.newSigninTime)}}</td>
+					<td>{{getNewDuration(correction)}}</td>
+					<td><button class="btn btn-default" ng-click="resolveCorrectionRequest(correction, true)">Approve</button>
+					<button class="btn btn-default" ng-click="resolveCorrectionRequest(correction, false)">Deny</button></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>

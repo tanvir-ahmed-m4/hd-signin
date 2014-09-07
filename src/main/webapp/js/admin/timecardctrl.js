@@ -1,4 +1,4 @@
-angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices', 'miscServices', 'correctionRequestServices',  function($scope, timecardServices, miscServices, correctionRequestServices){
+angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices', 'miscServices', 'correctionRequestServices', 'TimeUtils',  function($scope, timecardServices, miscServices, correctionRequestServices, TimeUtils){
 	$scope.user = null;
 	$scope.msg = 'Testing';
 	
@@ -12,6 +12,10 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	// work session: {"id":6,"employeeId":3,"signinTime":1410031651000,"signoutTime":1410031661000}
 	$scope.getStartTime = function(workSession){
 		return new Date(workSession.signinTime).toLocaleString();
+	}
+	
+	$scope.formatTime = function(time){
+		return TimeUtils.formatTime(time);
 	}
 	
 	$scope.changed = function(event){
@@ -33,14 +37,30 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	}
 	
 	$scope.submitCorrectionRequest = function(){
-		var request = {};
-		request['signinId'] = $scope.workSessionBeingEdited.id;
-		request['submitter'] = $scope.user;
-		request['newSigninTime'] = $scope.workSessionBeingEdited.signinTime;
-		request['newSignoutTime'] = $scope.workSessionBeingEdited.signoutTime;
-
-		console.log(JSON.stringify($scope.workSessionBeingEdited));
-		correctionRequestServices.createCorrectionRequest(request);
+		var request = {
+				signinId: $scope.workSessionBeingEdited.id,
+				submitter: $scope.user,
+				newSigninTime: $scope.workSessionBeingEdited.signinTime,
+				newSignoutTime: $scope.workSessionBeingEdited.signoutTime
+		};
+		
+		correctionRequestServices.createCorrectionRequest(request).then(function(response){
+			$scope.editedRow = -1;
+			addCorrectionRequest(response);
+		});
+	}
+	
+	function addCorrectionRequest(request){
+		for(var i = 0; i < $scope.corrections.length; i++){
+			if($scope.corrections[i].id == request.id){
+				$scope.corrections[i] = request;
+				updateDisplayedCorrectionRequests();
+				return;
+			}
+		}
+		$scope.corrections.push(request);
+		updateDisplayedCorrectionRequests()
+		
 	}
 	
 	$scope.getEndTime = function(workSession){
@@ -55,7 +75,7 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 		if(signoutTime == null || signoutTime == 0){
 			signoutTime = new Date().getTime();
 		}
-		return ((signoutTime - workSession.signinTime) / 1000.0) + ' Seconds';
+		return TimeUtils.formatTime(signoutTime - workSession.signinTime);
 	}
 	
 	function clone(obj) {
