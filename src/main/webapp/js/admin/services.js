@@ -56,7 +56,11 @@ angular.module('admin').factory('employeeServices', ['$http', function($http){
 	}
 
 	function createEmployee(employee){
-
+		return $http({
+			method: 'PUT',
+			url: '/signin/rest/admin/scclead/employee',
+			data: employee
+		}).then(getPayload, processError);
 	}
 
 	function updateEmployee(employee){
