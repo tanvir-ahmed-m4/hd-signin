@@ -95,8 +95,20 @@ angular.module('admin').factory('timecardServices', ['$http', function($http){
 
 	return {
 		getCurrentTimecardForCurrentEmployee: getCurrentTimecardForCurrentEmployee,
+		getTimecard: getTimecard
 	}
 
+	function getTimecard(employeeId, startDate, endDate){
+		return $http({
+			method: 'GET',
+			url: '/signin/rest/admin/scc/employee/' + employeeId + '/timecard',
+			params: {
+				periodStart: startDate,
+				periodEnd: endDate
+			}
+		}).then(getPayload, processError);
+	}
+	
 	function getCurrentTimecardForCurrentEmployee(id){
 		return $http({
 			method: 'GET',
@@ -153,6 +165,27 @@ angular.module('admin').factory('correctionRequestServices', ['$http', function(
 		}).then(getPayload, processError);
 	}
 }]);
+
+
+angular.module('admin').factory('PayPeriodServices', ['$http', function($http){
+
+	return {
+		getPayPeriodEnds: getPayPeriodEnds,
+	}
+
+	function getPayPeriodEnds(includeFuture){
+		if(typeof includeFuture == 'undefined'){
+			includeFuture = false;
+		}
+		
+		return $http({
+			method: 'GET',
+			url: '/signin/rest/admin/scc/periods?includeFuture=' + includeFuture
+		}).then(getPayload, processError);
+	}
+	
+}]);
+
 
 angular.module('admin').factory('TimeUtils', [function(){
 	return {

@@ -1,6 +1,7 @@
 package edu.helpdesk.signin.web.rest;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,10 +22,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Preconditions;
+
 import edu.helpdesk.signin.dao.EmployeeDao;
+import edu.helpdesk.signin.dao.PayPeriodDao;
 import edu.helpdesk.signin.dao.SigninDao;
 import edu.helpdesk.signin.model.CorrectionRequest;
 import edu.helpdesk.signin.model.CorrectionRequestStatus;
+import edu.helpdesk.signin.model.EmployeeType;
+import edu.helpdesk.signin.model.PayPeriod;
+import edu.helpdesk.signin.model.PeriodEnd;
 import edu.helpdesk.signin.model.dto.Employee;
 import edu.helpdesk.signin.model.dto.WorkSession;
 import edu.helpdesk.signin.model.nto.SigninResultErrorNto;
@@ -33,6 +40,7 @@ import edu.helpdesk.signin.model.nto.SigninResultSwipedINto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedOutNto;
 import edu.helpdesk.signin.model.nto.SigninUser;
 import edu.helpdesk.signin.services.TimecardFactory;
+import edu.helpdesk.signin.util.AuthenticationUtil;
 import edu.helpdesk.signin.web.util.Description;
 import edu.helpdesk.signin.web.util.PathConstants;
 import edu.helpdesk.signin.web.util.WebTask;
@@ -44,6 +52,8 @@ import edu.helpdesk.signin.web.util.WebUtils;
 public class AdminPageResource {
 	private static final Logger log = LoggerFactory.getLogger(AdminPageResource.class);
 	private static final String GET_RESOLVED = "includeResolved";
+	private static final String START_DATE = "periodStart";
+	private static final String END_DATE = "periodEnd";
 
 
 	@Autowired
@@ -54,6 +64,10 @@ public class AdminPageResource {
 
 	@Autowired
 	private SigninDao signinDao;
+
+	@Autowired
+	private PayPeriodDao payPeriodDao;
+
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -356,16 +370,85 @@ public class AdminPageResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_PATH + "/employee/{id}/timecard")
 	@Description("Gets a timecard")
-	public Response getTimecard(@PathParam("id") final Integer id){
+	public Response getTimecard(@Context final HttpServletRequest request, @PathParam("id") final Integer id, @QueryParam(START_DATE) final String startDate, @QueryParam(END_DATE) final String endDate){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 			@Override
-			public Response doTask() {
-				return Response.ok(TimecardFactory.get().getCurrentTimecard(employeeDao.getEmployee(id))).build();
+			public Response doTask() throws Exception{
+				PayPeriod period;
+
+				Employee e = employeeDao.getEmployee(id);
+				Employee loggedIn = WebUtils.get().getAuthenticatedUser(request);
+
+				Preconditions.checkArgument(e != null, "No employee with id '" + id + "' in database");
+				Preconditions.checkArgument(loggedIn != null, "No employee currently signed in");
+
+				// perform authentication checking
+				if(e.getId() == loggedIn.getId()){
+					AuthenticationUtil.get().verifyMinimumPermissionLevel(EmployeeType.SCC, loggedIn);
+				}
+				else{
+					AuthenticationUtil.get().verifyMinimumPermissionLevel(EmployeeType.SCC_LEAD, loggedIn);
+				}
+
+				// both null, use current period
+				if(startDate == null && endDate == null){
+					period = payPeriodDao.getCurrentPayPeriod();
+				}
+				else if(startDate == null || endDate == null){
+					// one null, the other not. Not allowed
+					throw new IllegalArgumentException(String.format("%s and %s must either both be set, or both be blank", START_DATE, END_DATE));
+				}
+				else{
+					// both set, parse them
+					long start = parseLong(startDate);
+					long end = parseLong(endDate);
+					period = new PayPeriod(new Date(start), new Date(end));
+				}
+
+				return Response.ok(TimecardFactory.get().getTimecard(period, e)).build();
 			}
 		});
 	}
 
+
+	////////////////////////////////////////////////////////////////////////////
+	//////////////////    Pay period helper functions    ///////////////////////
+	////////////////////////////////////////////////////////////////////////////
+
 	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_PATH + "/periods")
+	@Description("Get pay period end dates")
+	public Response getPeriods(@QueryParam("includeFuture") final String includeFutureStr){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+
+			@Override
+			public Response doTask() {
+				Boolean includeFuture = parseBool(includeFutureStr, false);
+				
+				List<PeriodEnd> ends = payPeriodDao.getAllPayPeriodEnds();
+				
+				List<Date> out = new ArrayList<>();
+				
+				final Date maxEnd = new Date(payPeriodDao.getCurrentPayPeriod().getEndOfPeriod().getTime() + 1); 
+				
+				for(int i = 0; i < ends.size(); i++){
+					Date end = ends.get(i).getEnd();
+					
+					if(includeFuture){
+						out.add(end);
+					}
+					else if(end.before(maxEnd)){
+						out.add(end);
+					}
+				}
+				
+				return Response.ok(out).build();
+			}
+		});
+	}
+
 
 	////////////////////////////////////////////////////////////////////////////
 	//////////////////    Internal helper functions    /////////////////////////
@@ -384,6 +467,14 @@ public class AdminPageResource {
 		return out;
 	}
 
+	private Long parseLong(String val){
+		try{
+			return Long.parseLong(val);
+		}catch(NumberFormatException e){
+			String errMsg = "Cannot parse '" + val + "' into a long";
+			throw new IllegalArgumentException(errMsg);
+		}
+	}
 
 	private Integer parseInt(String val){
 		try{

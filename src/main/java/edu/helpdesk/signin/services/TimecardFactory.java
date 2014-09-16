@@ -38,6 +38,10 @@ public class TimecardFactory {
 	}
 	
 	public Timecard getTimecard(PayPeriod period, Employee e){
+		if(period == null || period.getStartOfPeriod() == null || period.getEndOfPeriod() == null){
+			throw new NullPointerException("Period can't be null (got " + period + ")");
+		}
+		
 		List<WorkSession> sessions = dao.getAllWorkSessionsForEmployee(e.getId(), getMidnightNextDay(period.getStartOfPeriod()), period.getEndOfPeriod());
 		Timecard out = new Timecard();
 		out.setEmployee(e);

@@ -12,4 +12,28 @@ public enum EmployeeType {
 		return this.ordinal();
 	}
 	
+	public boolean isAboveOrEqual(EmployeeType other){
+		if(other == null){
+			return false;
+		}
+		
+		if(other.ordinal() <= this.ordinal()){
+			return true;
+		}
+	
+		return false;
+	}
+	
+	public boolean isAbove(EmployeeType other){
+		if(other == null){
+			return false;
+		}
+		
+		if(other.ordinal() < this.ordinal()){
+			return true;
+		}
+	
+		return false;
+	}
+	
 }
