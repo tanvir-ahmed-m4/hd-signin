@@ -8,8 +8,10 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	$scope.employees = [];
 	$scope.employee = null;
 	
-	$scope.timecard = [];
+	$scope.workSessions = [];
 	$scope.corrections = [];
+	
+	$scope.timecard = null;
 	
 	$scope.editedRow = -1;
 	$scope.workSessionBeingEdited = null;
@@ -17,6 +19,17 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	// work session: {"id":6,"employeeId":3,"signinTime":1410031651000,"signoutTime":1410031661000}
 	$scope.getStartTime = function(workSession){
 		return new Date(workSession.signinTime).toLocaleString();
+	}
+	
+	$scope.formatWorkTime = function(time){
+		return $scope.formatTime(time);
+	}
+	
+	$scope.formatWorkDate = function(time){
+		var days = {0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat'};
+		var months = {0: 'Jan', 1:'Feb', 2:'Mar', 3:'Apr', 4:'May', 5:'Jun', 6:'Jul', 7:'Aug', 8:'Sep', 9:'Oct', 10:'Nov', 11:'Dec'};
+		var d = new Date(time);
+		return days[d.getDay()] + ' ' + months[d.getMonth()] + ' ' + d.getDate();
 	}
 	
 	$scope.formatDate = function(d){
@@ -72,11 +85,11 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	
 	$scope.selectedEmployeeChanged = function(newEmployee){
 		$scope.employee = newEmployee;
-		updateDisplayedTimecard();
+		loadTimecardData();
 	}
 	
 	$scope.selectedPeriodChanged = function(newPeriod){
-		updateDisplayedTimecard();
+		loadTimecardData();
 	}
 	
 	$scope.isEmployeeSccLeadOrAbove = function(){
@@ -113,7 +126,7 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 
 	
 	function updateDisplayedCorrectionRequests(){
-		if($scope.timecard == null || $scope.timecard.length == 0)
+		if($scope.workSessions == null || $scope.workSessions.length == 0)
 			return;
 		if($scope.corrections == null || $scope.corrections.length == 0)
 			return;
@@ -122,7 +135,7 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 		for(var i = 0; i < $scope.corrections.length; i++){
 			ids[$scope.corrections[i].signinId] = $scope.corrections[i];
 		}
-		var workSessions = $scope.timecard.workSessions;
+		var workSessions = $scope.workSessions.workSessions;
 		for(var i = 0; i < workSessions.length; i++){
 			if(workSessions[i].id in ids){
 				workSessions[i].hasCorrectionRequest = true;
@@ -132,43 +145,105 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	}
 	
 	function updateDisplayedEmployee(){
-		if($scope.employees != null && $scope.user != null){
-			for(var i = 0; i < $scope.employees.length; i++){
-				if($scope.employees[i].id == $scope.user.id){
-					$scope.employee = $scope.employees[i];
-					return;
+		if($scope.user != null){
+			if($scope.employees != null){
+				for(var i = 0; i < $scope.employees.length; i++){
+					if($scope.employees[i].id == $scope.user.id){
+						$scope.employee = $scope.employees[i];
+						return;
+					}
 				}
+			}
+			else{
+				$scope.employee = $scope.user;
+				return;
 			}
 		}
 	}
 	
-	function updateDisplayedTimecard(){
-		$scope.timecard = [];
+	function loadTimecardData(){
+		if($scope.employee == null){
+			return;
+		}
+		
+		$scope.workSessions = [];
 		$scope.corrections = [];
 		
 		var eid = $scope.employee.id;
 		var twoWeeks = 1000 * 60 * 60 * 24 * 14;
+		
 		$scope.periodStart = $scope.periodEnd - twoWeeks; 
 		timecardServices.getTimecard(eid, $scope.periodStart, $scope.periodEnd).then(function(response){
-			$scope.timecard = response;
+			$scope.workSessions = response;
+			$scope.timecard = generateTimecard(response.workSessions, response.period.startOfPeriod, response.period.endOfPeriod);
 			updateDisplayedCorrectionRequests();
 		});
+		
 		correctionRequestServices.getCorrectionRequestsForEmployee(eid).then(function(response){
 			$scope.corrections = response;
 			updateDisplayedCorrectionRequests();
 		});
 	}
 	
+	function generateTimecard(workSessions, startDate, endDate){
+		var millisPerDay = 1000 * 60 * 60 * 24;
+		function getIdx(sessionStart){
+			return Math.floor((sessionStart - startDate) / millisPerDay)
+		}
+		
+		var hours = [];
+		var days = Math.ceil((endDate - startDate) / millisPerDay);
+		
+		for(var i = 0; i < days; i++){
+			hours.push({time: 0, idx: i, day: startDate + (millisPerDay * i)});
+		}
+		
+		for(var i = 0; i < workSessions.length; i++){
+			var duration = workSessions[i].signoutTime - workSessions[i].signinTime;
+			var idx = getIdx(workSessions[i].signinTime);
+			hours[idx].time += duration;
+		}
+		var weeks = [];
+		for(var i = 0; i < Math.floor(hours.length / 7); i++){
+			weeks.push(hours.slice(i * 7, (i + 1) * 7));
+		}
+		console.log(JSON.stringify(weeks));
+		return {
+			'startDate': startDate,
+			'times': hours,
+			'weeks': weeks
+		};
+	}
+	
+	/**
+	 * Called when an ajax call that loads requisite data is completed
+	 */
+	function ajaxCallCompleted(){
+		
+		// update the employee if we haven't and we have the missing data
+		if($scope.employee == null){
+			if($scope.employees != null && $scope.employees.length > 0){
+				updateDisplayedEmployee();
+			}
+		}
+		
+		if($scope.workSessions == null || $scope.workSessions.length == 0){
+			if($scope.employee != null && $scope.periodEnds != null && $scope.periodEnds.length > 0){
+				loadTimecardData();
+			}
+		}
+	}
+	
 	
 	miscServices.getSignedInUser().then(function(response){
 		$scope.user = response;
-		updateDisplayedEmployee();
+		ajaxCallCompleted();
 	});
 	
 	PayPeriodServices.getPayPeriodEnds().then(function(response){
 		$scope.periodEnds = response.reverse();
 		$scope.periodEnd = $scope.periodEnds[0];
-		updateDisplayedTimecard();
+		ajaxCallCompleted();
 	});
 	
 	employeeServices.getAllEmployees().then(function(response){
@@ -177,12 +252,6 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 			return;
 		}
 		$scope.employees = response;
-		updateDisplayedEmployee();
+		ajaxCallCompleted();
 	});
-	
-	
-	
-	
-	
-	
 }]);

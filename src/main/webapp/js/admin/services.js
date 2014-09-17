@@ -200,6 +200,10 @@ angular.module('admin').factory('TimeUtils', [function(){
 	}
 
 	function formatTime(time){
+		if(time == 0){
+			return '0';
+		}
+		
 		// calculate values
 		var hours = Math.floor(time / (1000 * 60 * 60));
 		time %= (1000 * 60 * 60);

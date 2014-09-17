@@ -19,6 +19,18 @@
 		
 		</div>
 		<div class="panel panel-default">
+			<div class="panel-heading">Timecard</div>
+			<table class="table table-condensed" ng-repeat="week in timecard.weeks">
+				<tr>
+					<th ng-repeat="t in week track by t.idx">{{formatWorkDate(t.day)}}</th>
+				</tr>
+				<tr>
+					<td ng-repeat="t in week track by t.idx">{{formatWorkTime(t.time)}}</td>
+				
+				</tr>
+			</table>
+		</div>
+		<div class="panel panel-default">
   			<div class="panel-heading">Work Sessions for {{employee.firstName}} from {{formatDate(periodStart)}} to {{formatDate(periodEnd)}}</div>
 			<table class="table table-striped">
 				<tr>
@@ -28,7 +40,7 @@
 					<th></th>
 				</tr>
 				
-				<tr ng-repeat="workSession in timecard.workSessions" class="{{workSession.hasCorrectionRequest ? 'info' : ''}}">
+				<tr ng-repeat="workSession in workSessions.workSessions" class="{{workSession.hasCorrectionRequest ? 'info' : ''}}">
 					<td ng-if="editedRow != $index">{{getStartTime(workSession)}}</td>
 					<td ng-if="editedRow != $index">{{getEndTime(workSession)}}</td>
 					<td ng-if="editedRow != $index">{{getDuration(workSession)}}</td>
