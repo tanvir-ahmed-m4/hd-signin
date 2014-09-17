@@ -1,5 +1,7 @@
 <div class="container-fluid">
 	<div class="col-md-3">
+	
+		<!-- Timecard settings panel -->
 		<div class="panel panel-default">
 			<div class="panel-heading">Settings</div>
 			<div class="panel-body">
@@ -14,10 +16,10 @@
 			</div>
 		</div>
 	</div>
+	
 	<div class="col-md-7">
-		<div>
-		
-		</div>
+	
+		<!-- Timecard panel -->
 		<div class="panel panel-default">
 			<div class="panel-heading">Timecard</div>
 			<table class="table table-condensed" ng-repeat="week in timecard.weeks">
@@ -30,9 +32,14 @@
 				</tr>
 			</table>
 		</div>
+		
+		<!-- Work sessions panel -->
 		<div class="panel panel-default">
   			<div class="panel-heading">Work Sessions for {{employee.firstName}} from {{formatDate(periodStart)}} to {{formatDate(periodEnd)}}</div>
-			<table class="table table-striped">
+  			<div class="panel-body" ng-if="workSessions.workSessions.length <= 0 || !workSessions.workSessions">
+  				<i>No work sessions for this period</i>
+  			</div>
+			<table class="table table-striped" ng-if="workSessions.workSessions.length > 0">
 				<tr>
 					<th>Signin Time</th>
 					<th>Signout Time</th>
@@ -55,8 +62,7 @@
 					<td ng-if="editedRow == $index"><button class="btn btn-default" ng-click="submitCorrectionRequest()">{{getEditMsg()}}</button><button class="btn btn-default" ng-click="cancelCorrectionRequest()">Cancel</button></td>
 				</tr>
 			</table>
-			
-			</div>
+		</div>
 	</div>
 	<div class="col-md-2"></div>
 </div>
