@@ -280,7 +280,6 @@ public class AdminPageResource {
 			@Override
 			public Response doTask() {
 				boolean filterInactive = parseBool(filterInactiveStr, true);
-
 				List<Employee> employees = employeeDao.getAllEmployees();
 
 				List<Employee> out = new ArrayList<>(employees.size());
@@ -302,7 +301,24 @@ public class AdminPageResource {
 			}
 		});
 	}
+	
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee/signedin")
+	@Description("Get all signed in employees")
+	public Response getAllSignedInEmployees(){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
+			@Override
+			public Response doTask() {
+				return Response.ok(signinDao.getAllSignedInEmployees()).build();
+			}
+		});
+	}
+	
+	
+	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee/{id}")

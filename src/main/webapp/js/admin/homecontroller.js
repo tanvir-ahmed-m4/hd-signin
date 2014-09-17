@@ -1,6 +1,8 @@
-angular.module('admin').controller('AdminHomeCtrl', ['$scope', 'miscServices', 'correctionRequestServices', 'TimeUtils',  function($scope, miscServices, correctionRequestServices, TimeUtils){
+angular.module('admin').controller('AdminHomeCtrl', ['$scope', 'miscServices', 'correctionRequestServices', 'TimeUtils','employeeServices',  function($scope, miscServices, correctionRequestServices, TimeUtils, employeeServices){
 	$scope.user = null;
 	$scope.corrections = [];
+	$scope.signedInEmployees = [];
+	
 	
 	miscServices.getSignedInUser().then(function(response){
 		$scope.user = response;
@@ -13,6 +15,7 @@ angular.module('admin').controller('AdminHomeCtrl', ['$scope', 'miscServices', '
 	$scope.formatDate = function(time){
 		return new Date(time).toLocaleString();
 	}
+	
 	$scope.getOriginalDuration = function(correction){
 		return TimeUtils.formatTime(correction.originalSignoutTime - correction.originalSigninTime);
 	}
@@ -27,6 +30,16 @@ angular.module('admin').controller('AdminHomeCtrl', ['$scope', 'miscServices', '
 		});
 	}
 	
+	$scope.getEmployeeDisplayName = function(employee){
+		return employee.firstName + ' ' + employee.lastName;
+	}
+	
+	$scope.toggleSigninState = function(employee){
+		employeeServices.toggleSigninState(employee).then(function(response){
+			updateSignedInEmployees();
+		});
+	}
+	
 	function removeRequest(request){
 		for(var i = 0; i < $scope.corrections.length; i++){
 			if($scope.corrections[i].id == request.id){
@@ -36,5 +49,13 @@ angular.module('admin').controller('AdminHomeCtrl', ['$scope', 'miscServices', '
 		}
 	}
 	
+	function updateSignedInEmployees(){
+		employeeServices.getSignedInEmployees().then(function(response){
+			$scope.signedInEmployees = response;
+		});
+	}
 	
+	
+	
+	updateSignedInEmployees();
 }]);

@@ -199,7 +199,8 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 		}
 		
 		for(var i = 0; i < workSessions.length; i++){
-			var duration = workSessions[i].signoutTime - workSessions[i].signinTime;
+			var signoutTime = workSessions[i].signoutTime > 0 ? workSessions[i].signoutTime : new Date().getTime();
+			var duration = signoutTime - workSessions[i].signinTime;
 			var idx = getIdx(workSessions[i].signinTime);
 			hours[idx].time += duration;
 		}

@@ -49,12 +49,34 @@ angular.module('admin').factory('miscServices', ['$http', function($http){
 angular.module('admin').factory('employeeServices', ['$http', function($http){
 
 	return {
+		toggleSigninState: toggleSigninState,
 		createEmployee: createEmployee,
 		updateEmployee: updateEmployee,
 		deleteEmployee: deleteEmployee,
-		getAllEmployees: getAllEmployees
+		getAllEmployees: getAllEmployees,
+		getSignedInEmployees: getSignedInEmployees
 	}
-
+	
+	function toggleSigninState(employee){
+		var eid = employee;
+		
+		if(employee.riceId){
+			eid = employee.riceId;
+		}
+		return $http({
+			method: 'POST',
+			url: '/signin/rest/admin/scclead/togglesignin',
+			data: eid
+		}).then(getPayload, processError);
+	}
+	
+	function getSignedInEmployees(){
+		return $http({
+			method: 'GET',
+			url: '/signin/rest/admin/scclead/employee/signedin',
+		}).then(getPayload, processError);
+	}
+	
 	function createEmployee(employee){
 		return $http({
 			method: 'PUT',
