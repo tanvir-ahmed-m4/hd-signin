@@ -7,6 +7,14 @@
 	<link rel="stylesheet" href="/signin/css/bootstrap-theme.min.css" type="text/css" charset="utf-8">
 	<style type="text/css">
 	.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+	
+	body{
+		background-image: url('/signin/images/background.png');
+	}
+	html, body {
+	   /*  margin: 0; */
+	    height: 100%;
+	}
 	</style>
 </head>
 <body>
@@ -14,13 +22,15 @@
 	<div ng-controller="AdminNavCtrl" class="navbar navbar-default navbar-static-top" role="navigation">
 		<div class="container">
 			<div class="navbar-header">
-				<a class="navbar-brand">Helpdesk Administration</a>
+				<a class="navbar-brand"  href="#/">Helpdesk Administration</a>
 			</div>
 			<ul class="nav navbar-nav">
 				<!-- TODO adjust visibility of these depending on permission levels -->
 				<li class="{{isActive('') ? 'active' : ''}}"><a href="#/">Dashboard</a></li>
-				<li class="{{isActive('timecard') ? 'active' : ''}}"><a href="#/timecard">Timecards</a></li>
-				<li class="{{isActive('employeemgmt') ? 'active' : ''}}"><a href="#/employeemgmt">Employee Management</a></li>
+				<li ng-if="hasLevel('SCC')" class="{{isActive('timecard') ? 'active' : ''}}"><a href="#/timecard">Timecards</a></li>
+				<li ng-if="hasLevel('SCC_LEAD')" class="{{isActive('employeemgmt') ? 'active' : ''}}"><a href="#/employeemgmt">Employee Management</a></li>
+				<li ng-if="hasLevel('SUPERVISOR')" class="{{isActive('mod') ? 'active' : ''}}"><a href="#/mod">Admin</a></li>
+				<li ng-if="hasLevel('SYSADMIN')" class="{{isActive('sysadmin') ? 'active' : ''}}"><a href="#/sysadmin">Sysadmin</a></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				<!-- Add active class to li for effects -->
@@ -29,7 +39,6 @@
 			</ul>
 		</div>
 	</div>
-
 	<!-- ng-view will be swapped out for the different content sections -->
 	<ng-view></ng-view>
 
@@ -41,5 +50,7 @@
 	<script type="text/javascript" src="/signin/js/admin/homecontroller.js"></script>
 	<script type="text/javascript" src="/signin/js/admin/editemployeectrl.js"></script>
 	<script type="text/javascript" src="/signin/js/admin/timecardctrl.js"></script>
+	<script type="text/javascript" src="/signin/js/admin/modctrl.js"></script>
+	<script type="text/javascript" src="/signin/js/admin/sysadmin.js"></script>
 </body>
 </html>

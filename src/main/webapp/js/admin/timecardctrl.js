@@ -207,7 +207,6 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 		for(var i = 0; i < Math.floor(hours.length / 7); i++){
 			weeks.push(hours.slice(i * 7, (i + 1) * 7));
 		}
-		console.log(JSON.stringify(weeks));
 		return {
 			'startDate': startDate,
 			'times': hours,
