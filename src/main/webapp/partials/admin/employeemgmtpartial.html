@@ -7,69 +7,8 @@
 					<select class="form-control" ng-model="activeEmployee" ng-options="getDisplayName(e) for e in employees track by e.id"></select>
 				</div>
 			</div>
-		</div>
-
-		<div class="col-md-4">
-			<div class="panel panel-default">
-				<div class="panel-heading">Edit Employee</div>
-				<div class="panel-body">
-				<form class="form-horizontal" role="form">
-					<div class="form-group">
-						<label for="fname" class="col-sm-2 control-label">First Name</label>
-						<div class="col-sm-10">
-							<input class="form-control" id="fname" placeholder="First Name" ng-model="activeEmployee.firstName">
-						</div>
-					</div>
-	
-					<div class="form-group">
-						<label for="lname" class="col-sm-2 control-label">Last Name</label>
-						<div class="col-sm-10">
-							<input class="form-control" id="lname" placeholder="Last Name" ng-model="activeEmployee.lastName">
-						</div>
-					</div>
-	
-					<div class="form-group">
-						<label for="netid" class="col-sm-2 control-label">Net ID</label>
-						<div class="col-sm-10">
-							<input class="form-control" id="netid" placeholder="Net ID" ng-model="activeEmployee.netId">
-						</div>
-					</div>
-	
-					<div class="form-group">
-						<label for="riceid" class="col-sm-2 control-label">Rice ID</label>
-						<div class="col-sm-10">
-							<input class="form-control" id="riceid" placeholder="Rice ID" ng-model="activeEmployee.riceId">
-						</div>
-					</div>
-					
-					<div class="form-group">
-						<label for="employeetype" class="col-sm-2 control-label">Employee Type</label>
-						<div class="col-sm-10">
-							<select class="form-control" id="employeetype" ng-model="activeEmployee.employeeType" ng-options="e for e in employeeTypes"></select>
-						</div>
-					</div>
-					
-					<div class="form-group">
-						<div class="col-sm-offset-2 col-sm-10">
-							<div class="checkbox">
-								<label> <input type="checkbox" ng-model="activeEmployee.isEmployeeActive">Employee Active?</label>
-							</div>
-						</div>
-					</div>
-	
-					<div class="form-group">
-						<div class="col-sm-offset-2 col-sm-10">
-							<button type="submit" class="btn btn-default"
-								ng-click="saveChanges()">Save Changes</button>
-						</div>
-					</div>
-					
-				</form>
-				</div>
-			</div>
-		</div><!-- /col4 -->
-		
-		<div class="col-md-4">
+			
+			
 			<div class="panel panel-default">
 				<div class="panel-heading">Create New Employee</div>
 				<div class="panel-body">
@@ -125,7 +64,86 @@
 					</form>
 				</div>
 			</div>
+			
+			
+			
+			
+			
 		</div>
-		<div class="col-md-1"></div>
+
+		<div class="col-md-3">
+			<div class="panel panel-default">
+				<div class="panel-heading">Edit Employee</div>
+				<div class="panel-body">
+				<form class="form-horizontal" role="form">
+					<div class="form-group">
+						<label for="fname" class="col-sm-2 control-label">First Name</label>
+						<div class="col-sm-10">
+							<input class="form-control" id="fname" placeholder="First Name" ng-model="activeEmployee.firstName">
+						</div>
+					</div>
+	
+					<div class="form-group">
+						<label for="lname" class="col-sm-2 control-label">Last Name</label>
+						<div class="col-sm-10">
+							<input class="form-control" id="lname" placeholder="Last Name" ng-model="activeEmployee.lastName">
+						</div>
+					</div>
+	
+					<div class="form-group">
+						<label for="netid" class="col-sm-2 control-label">Net ID</label>
+						<div class="col-sm-10">
+							<input class="form-control" id="netid" placeholder="Net ID" ng-model="activeEmployee.netId">
+						</div>
+					</div>
+	
+					<div class="form-group">
+						<label for="riceid" class="col-sm-2 control-label">Rice ID</label>
+						<div class="col-sm-10">
+							<input class="form-control" id="riceid" placeholder="Rice ID" ng-model="activeEmployee.riceId">
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label for="employeetype" class="col-sm-2 control-label">Employee Type</label>
+						<div class="col-sm-10">
+							<select class="form-control" id="employeetype" ng-model="activeEmployee.employeeType" ng-options="e for e in employeeTypes"></select>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-default"
+								ng-click="saveChanges()">Save Changes</button>
+						</div>
+					</div>
+					
+				</form>
+				</div>
+			</div>
+		</div><!-- /col4 -->
+		
+		<div class="col-md-3">
+			<div class="panel panel-default">
+				<div class="panel-heading">Active Employees</div>
+				<ul class="list-group">
+					<li class="list-group-item" ng-repeat="employee in employees">
+						{{getDisplayName(employee)}}
+						<button class="btn btn-default" ng-click="setEmployeeActive(employee, false)">Retire</button>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="panel panel-default">
+				<div class="panel-heading">Retired Employees</div>
+				<ul class="list-group">
+					<li class="list-group-item" ng-repeat="employee in retiredEmployees">
+						{{getDisplayName(employee)}}
+						<button class="btn btn-default" ng-click="setEmployeeActive(employee, true)">Reactivate</button>
+					</li>
+				</ul>
+			</div>
+		</div>
 	</div>
 </div>

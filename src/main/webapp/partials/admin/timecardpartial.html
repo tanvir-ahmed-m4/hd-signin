@@ -22,7 +22,7 @@
 		<!-- Timecard panel -->
 		<div class="panel panel-default">
 			<div class="panel-heading">Timecard</div>
-			<table class="table table-condensed" >
+			<table class="table" >
 				<tr ng-repeat-start="week in timecard.weeks">
 					<th ng-repeat="t in week track by t.idx">{{formatWorkDate(t.day)}}</th>
 				</tr>

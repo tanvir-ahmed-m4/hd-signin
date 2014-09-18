@@ -74,6 +74,11 @@ public class AdminPageResource {
 	@Autowired
 	private PayPeriodDao payPeriodDao;
 
+	public AdminPageResource() {
+		log.info("Administrative page resource created");
+	}
+	
+	
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -378,7 +383,7 @@ public class AdminPageResource {
 			@Override
 			public Response doTask() {
 				employeeDao.updateEmployee(e);
-				return Response.ok().build();
+				return Response.ok(employeeDao.getEmployee(e.getId())).build();
 			}
 		});
 	}

@@ -116,7 +116,7 @@ angular.module('admin').factory('employeeServices', ['$http', function($http){
 		return $http({
 			method: 'GET',
 			url: '/signin/rest/admin/scclead/employee',
-			params: {'filterinactive': filterInactive}
+			params: {'filterInactive': filterInactive}
 		}).then(getPayload, processError);
 
 
