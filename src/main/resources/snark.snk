@@ -1,0 +1,47 @@
+# Snark message file.
+# possible substitutions are {employee.firstName}, {employee.lastName},
+# {session.duration}, and {time}
+# All lines that start with a '#' are ignored
+
+# Messages for people that have stayed at the helpdesk for a "long" time,
+# e.g. more than 4 hours
+LONG
+Your family misses you.
+Your friends miss you.
+Your friends miss you...
+Don't forget to, you know, attend class.
+The recovery stations believe you are stalking them.
+Don't you have anything better to do?
+Go home.
+The coffee's just that good, huh?
+You know there's no benefits program, right?
+
+# Messages for people that have stayed at the helpdesk for a regular amount of
+# time, e.g. 1.5 to 4 hours
+REGULAR
+Thanks!
+See you tomorrow (I hope)!
+Good job!
+Keep up the good work!
+Smile :)
+Wowie zowie!
+Real dilligence!
+Employee of the now!
+Thank you for your service.
+Helping customers and taking names.
+
+# Messages for people that have stayed at the helpdesk for a short amount of 
+# time, e.g. less than 1.5 hours.
+SHORT
+Working hard or hardly working? The latter.
+Slow down there, sport.
+Verily, a model employee.
+Time flies, huh?
+Don't strain yourself.
+Your diligence has earned you a nomination for 'employee of the whenever.'
+Slow and steady doesn't always win the race, you know.
+Probably not even taxable.
+Do you even lift?
+You got out of bed for this.
+Someone is paying over $20,000/year for this.
+Minimal!
