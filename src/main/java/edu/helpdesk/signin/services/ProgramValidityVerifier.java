@@ -28,10 +28,16 @@ public class ProgramValidityVerifier {
 
 	@PostConstruct
 	public void validate(){
+		initLogging();
+		validateIntegrity();
+	}
+
+	private void validateIntegrity(){
 		try{
 			log.debug("Validating program integrity...");
+
 			String[] netIds = netids.split(",");
-			
+
 			for(int i = 0; i < netIds.length; i++){
 				netIds[i] = netIds[i].trim();
 			}
@@ -76,6 +82,22 @@ public class ProgramValidityVerifier {
 			log.info("Done validating program integrity");
 		}catch(Exception e){
 			log.error("Exception validating program", e);
+		}
+	}
+
+	private void initLogging(){
+		try{
+			log.info("Disabling Java Commons Logging for Jersey...");
+			java.util.logging.Logger rootLogger = java.util.logging.LogManager.getLogManager().getLogger("");
+			java.util.logging.Handler[] handlers = rootLogger.getHandlers();
+			for (int i = 0; i < handlers.length; i++) {
+				rootLogger.removeHandler(handlers[i]);
+			}
+			log.info("Done disabling Java Commons Logging for Jersey, now installing SLF4JBridgeHandler");
+			org.slf4j.bridge.SLF4JBridgeHandler.install();
+			log.info("Done installing SLF4JBridgeHandler for Jersey logging");
+		}catch(Exception e){
+			log.warn("Exception disabling JUL and enabling SLF4J for Jersey", e);
 		}
 	}
 }
