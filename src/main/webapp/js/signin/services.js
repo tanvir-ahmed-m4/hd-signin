@@ -38,3 +38,61 @@ angular.module('signin').factory('swipeServices', ['$http', function($http){
 		}).then(getPayload, processError);
 	}
 }]);
+
+angular.module('signin').factory('TimeUtils', [function(){
+	return {
+		formatTime: formatTime
+	}
+
+	function appendsIfPlural(str, num){
+		if(num == 1){
+			return str;
+		}
+		return str + 's';
+	}
+
+	function formatTime(time){
+		if(time == 0){
+			return '0';
+		}
+		
+		// calculate values
+		var hours = Math.floor(time / (1000 * 60 * 60));
+		time %= (1000 * 60 * 60);
+		var minutes = Math.floor(time / (1000 * 60));
+		time %= (1000 * 60);
+		var seconds = Math.floor(time / 1000);
+
+		//build output
+		var out = '';
+		var includeComma = false;
+		if(hours != 0){
+			out += hours + ' hour';
+			out = appendsIfPlural(out, hours);
+
+			includeComma = true;
+		}
+		if(minutes != 0){
+			if(includeComma){
+				out += ', ';
+			}
+
+			out += minutes + ' minute';
+			out = appendsIfPlural(out, minutes);
+
+			includeComma = true;
+		}
+		
+		if(hours == 0){
+			if(seconds > 0){
+				if(includeComma){
+					out += ', ';
+				}
+				out += seconds + ' second';
+				out = appendsIfPlural(out, seconds);
+			}
+		}
+		return out;
+	}
+
+}]);

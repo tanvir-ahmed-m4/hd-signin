@@ -1,4 +1,4 @@
-angular.module('signin').controller('SigninCtrl', ['$scope', '$interval', 'swipeServices',  function($scope, $interval, swipeServices){
+angular.module('signin').controller('SigninCtrl', ['$scope', '$interval', 'swipeServices', 'TimeUtils',  function($scope, $interval, swipeServices, TimeUtils){
 	var delay = 1000 * 10;
 	var loadingEmployees = false;
 	var currentId = 0;
@@ -24,6 +24,10 @@ angular.module('signin').controller('SigninCtrl', ['$scope', '$interval', 'swipe
 	
 	$scope.isLoadingEmployees = function(){
 		return loadingEmployees;
+	}
+	
+	function formatTimeDuration(time){
+		return TimeUtils.formatTime(time);
 	}
 	
 	function handleResponse(data){
@@ -104,8 +108,10 @@ angular.module('signin').controller('SigninCtrl', ['$scope', '$interval', 'swipe
 		//  "timeWorkedShift":5680875,
 		//  "timeWorkedDay":17498889
 		//}
-		processMessage('Goodbye ' + data.name + '.', 'You worked for ' + (data.timeWorkedShift / 1000 / 3600.0) + ' hours that shift.',
-				'You\'ve worked for ' + (data.timeWorkedDay / 1000 / 3600.0) + ' hours today.',
+		processMessage(
+				'Goodbye ' + data.name + '.',
+				'You worked for ' + formatTimeDuration(data.timeWorkedShift) + ' that shift.',
+				'You\'ve worked for ' + formatTimeDuration(data.timeWorkedDay) + ' today.',
 				data.snark
 		);
 	}
