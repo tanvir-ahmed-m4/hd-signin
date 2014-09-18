@@ -5,7 +5,10 @@
 	<div class="col-md-9">
 		<div class="panel panel-default">
 			<div class="panel-heading">Pending Correction Requests</div>
-			<table class="table table-striped">
+			<div class="panel-body" ng-if="corrections.length <= 0">
+				<i>No pending corrections</i>
+			</div>
+			<table ng-if="corrections.length > 0" class="table table-striped">
 				<thead>
 					<tr>
 						<th></th>

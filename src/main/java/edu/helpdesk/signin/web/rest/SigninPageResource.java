@@ -1,6 +1,9 @@
 package edu.helpdesk.signin.web.rest;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +29,8 @@ import edu.helpdesk.signin.model.nto.SigninResultErrorNto;
 import edu.helpdesk.signin.model.nto.SigninResultNto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedINto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedOutNto;
+import edu.helpdesk.signin.services.EventLogger;
+import edu.helpdesk.signin.services.SnarkFactory;
 import edu.helpdesk.signin.web.util.PathConstants;
 import edu.helpdesk.signin.web.util.WebTask;
 import static edu.helpdesk.signin.web.util.WebTaskExecutor.doWebTaskSafe;
@@ -87,14 +92,18 @@ public class SigninPageResource {
 
 		if(e != null){
 			WorkSession result = this.signinDao.doToggleSigninStatus(e);
-			if(result.getSignoutTime() == null){
+			boolean swipedIn = result.getSignoutTime() == null ? true : false;
+			
+			EventLogger.get().logEvent("Employee with rice id '%s' swiped %s", e.getRiceId(), swipedIn ? "in" : "out");
+			
+			if(swipedIn){
 				return new SigninResultSwipedINto(e.getFirstName() + " " + e.getLastName());
 			}
 			else{
 				int time = (int) (result.getSignoutTime().getTime() - result.getSigninTime().getTime());
 				
 				// TODO get time signed in for the day, and snark
-				return new SigninResultSwipedOutNto(time, 0, "Butts", getName(e));
+				return new SigninResultSwipedOutNto(time, getTimeWorkedDay(e), SnarkFactory.get().getSnark(time, e), getName(e));
 			}
 		}
 		else{
@@ -125,4 +134,38 @@ public class SigninPageResource {
 	private Response process(WebTask task){
 		return doWebTaskSafe(task);
 	}
+	
+	private int getTimeWorkedDay(Employee e){
+		List<WorkSession> sessions = signinDao.getAllWorkSessionsForEmployee(e.getId(), getMidnightToday(), getMidnightNextDay());
+		int time = 0;
+		for(WorkSession s : sessions){
+			Date signinTime = s.getSigninTime();
+			Date signoutTime = s.getSignoutTime() == null ? new Date() : s.getSignoutTime();
+			time += (signoutTime.getTime() - signinTime.getTime());
+		}
+		return time;
+	}
+	
+	private Date getMidnightToday(){
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.setTimeInMillis(System.currentTimeMillis());
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return cal.getTime();
+	}
+	
+	private Date getMidnightNextDay(){
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.setTimeInMillis(System.currentTimeMillis());
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.setTimeInMillis(cal.getTimeInMillis() + 1000 * 60 * 60 * 24);
+		return cal.getTime();
+	}
+	
+	
 }

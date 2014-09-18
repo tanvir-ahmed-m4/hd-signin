@@ -45,6 +45,7 @@ import edu.helpdesk.signin.model.nto.SigninResultNto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedINto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedOutNto;
 import edu.helpdesk.signin.model.nto.SigninUser;
+import edu.helpdesk.signin.services.EventLogger;
 import edu.helpdesk.signin.services.TimecardFactory;
 import edu.helpdesk.signin.util.AuthenticationUtil;
 import edu.helpdesk.signin.web.util.Description;
@@ -148,6 +149,22 @@ public class AdminPageResource {
 
 		});
 	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/log")
+	@Description("Gets event log")
+	public Response getEventLog(){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+
+			@Override
+			public Response doTask() throws Exception {
+				return Response.ok(EventLogger.get().getLog()).build();
+			}
+
+		});
+	}
+	
 
 	////////////////////////////////////////////////////////////////////////////
 	////////////////    Correction Request REST functions    ///////////////////
