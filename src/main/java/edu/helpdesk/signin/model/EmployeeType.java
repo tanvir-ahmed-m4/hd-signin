@@ -12,7 +12,7 @@ public enum EmployeeType {
 		return this.ordinal();
 	}
 	
-	public boolean isAboveOrEqual(EmployeeType other){
+	public boolean isAboveOrEqualTo(EmployeeType other){
 		if(other == null){
 			return false;
 		}

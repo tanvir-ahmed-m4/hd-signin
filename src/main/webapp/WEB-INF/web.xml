@@ -35,7 +35,12 @@
 
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-
+	
+	<filter>
+		<filter-name>REST authentication filter</filter-name>
+		<filter-class>edu.helpdesk.signin.web.filter.AuthenticationFilter</filter-class>
+	</filter>
+	
 	<!-- Filters for CAS -->
 	<filter>
 		<!-- Filter configured in the authBeans.xml file -->
@@ -101,6 +106,11 @@
 	</filter-mapping>
 	
 	<!-- End of CAS filter mappings -->
+	
+	<filter-mapping>
+		<filter-name>REST authentication filter</filter-name>
+		<url-pattern>/rest/admin/*</url-pattern>
+	</filter-mapping>
 	
 	<servlet-mapping>
 		<servlet-name>servlet-asdf</servlet-name>

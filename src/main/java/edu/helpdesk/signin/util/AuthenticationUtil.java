@@ -18,7 +18,7 @@ public class AuthenticationUtil {
 	
 	
 	public void verifyMinimumPermissionLevel(EmployeeType required, EmployeeType actual) throws AuthenticationFailedException{
-		if(actual.isAboveOrEqual(required)){
+		if(actual.isAboveOrEqualTo(required)){
 			return;
 		}
 		else{
