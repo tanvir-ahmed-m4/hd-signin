@@ -17,11 +17,22 @@ var getPayload = function(response){
 angular.module('admin').factory('miscServices', ['$http', function($http){
 
 	return {
+		finger: finger,
 		toggleSignin: toggleSignin,
 		getSignedInEmployees: getSignedInEmployees,
 		getSignedInUser: getSignedInUser
 	}
 
+	function finger(netid){
+		return $http({
+			url: '/signin/rest/admin/scc/finger',
+			method: 'GET',
+			params: {
+				'netid': netid
+			}
+		}).then(getPayload, processError);
+	}
+	
 	function toggleSignin(sid){
 
 		return $http({

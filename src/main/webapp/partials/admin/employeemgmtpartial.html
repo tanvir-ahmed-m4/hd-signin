@@ -67,12 +67,27 @@
 				</form>
 				</div>
 			</div>
-		</div><!-- /col6 -->
+		</div><!-- /col4 -->
+		
 		<div class="col-md-4">
 			<div class="panel panel-default">
 				<div class="panel-heading">Create New Employee</div>
 				<div class="panel-body">
 					<form class="form-horizontal" role="form">
+						
+						<div class="form-group">
+							<label for="netidc" class="col-sm-2 control-label">Net ID</label>
+							<div class="col-sm-10">
+								<div class="input-group">
+									<input  type="text" class="form-control" id="netidc" placeholder="Net ID" ng-model="newEmployee.netId">
+									<span class="input-group-btn">
+	       								 <button class="btn btn-default {{fingerDisabled ? 'disabled' : ''}}" type="button"  ng-click="finger()">Finger</button>
+	      							</span>
+								</div>
+							</div>
+						</div>
+						<div ng-if="errorMessage != null" class="alert alert-danger" role="alert">{{errorMessage}}</div>
+						
 						<div class="form-group">
 							<label for="fnamec" class="col-sm-2 control-label">First Name</label>
 							<div class="col-sm-10">
@@ -84,13 +99,6 @@
 							<label for="lnamec" class="col-sm-2 control-label">Last Name</label>
 							<div class="col-sm-10">
 								<input class="form-control" id="lnamec" placeholder="Last Name" ng-model="newEmployee.lastName">
-							</div>
-						</div>
-		
-						<div class="form-group">
-							<label for="netidc" class="col-sm-2 control-label">Net ID</label>
-							<div class="col-sm-10">
-								<input class="form-control" id="netidc" placeholder="Net ID" ng-model="newEmployee.netId">
 							</div>
 						</div>
 		

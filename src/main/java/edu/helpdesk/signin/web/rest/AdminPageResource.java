@@ -2,7 +2,11 @@ package edu.helpdesk.signin.web.rest;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
@@ -17,12 +21,14 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.net.finger.FingerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 import edu.helpdesk.signin.dao.EmployeeDao;
 import edu.helpdesk.signin.dao.PayPeriodDao;
@@ -123,6 +129,20 @@ public class AdminPageResource {
 		});
 	}
 
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_PATH + "/finger")
+	@Description("Fingers")
+	public Response finger(@QueryParam("netid") final String netid){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+
+			@Override
+			public Response doTask() throws Exception {
+				return Response.ok(fingerInternal(netid)).build();
+			}
+
+		});
+	}
 
 	////////////////////////////////////////////////////////////////////////////
 	////////////////    Correction Request REST functions    ///////////////////
@@ -301,8 +321,8 @@ public class AdminPageResource {
 			}
 		});
 	}
-	
-	
+
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee/signedin")
@@ -316,9 +336,9 @@ public class AdminPageResource {
 			}
 		});
 	}
-	
-	
-	
+
+
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee/{id}")
@@ -431,7 +451,7 @@ public class AdminPageResource {
 	//////////////////    Pay period helper functions    ///////////////////////
 	////////////////////////////////////////////////////////////////////////////
 
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_PATH + "/periods")
@@ -442,16 +462,16 @@ public class AdminPageResource {
 			@Override
 			public Response doTask() {
 				Boolean includeFuture = parseBool(includeFutureStr, false);
-				
+
 				List<PeriodEnd> ends = payPeriodDao.getAllPayPeriodEnds();
-				
+
 				List<Date> out = new ArrayList<>();
-				
+
 				final Date maxEnd = new Date(payPeriodDao.getCurrentPayPeriod().getEndOfPeriod().getTime() + 1); 
-				
+
 				for(int i = 0; i < ends.size(); i++){
 					Date end = ends.get(i).getEnd();
-					
+
 					if(includeFuture){
 						out.add(end);
 					}
@@ -459,7 +479,7 @@ public class AdminPageResource {
 						out.add(end);
 					}
 				}
-				
+
 				return Response.ok(out).build();
 			}
 		});
@@ -508,4 +528,46 @@ public class AdminPageResource {
 			return true;
 		return defaultVal;
 	}
+
+	private Map<String, String> fingerInternal(String netid) throws Exception{
+		final Set<String> KEYS = new HashSet<String>(){
+			private static final long serialVersionUID = -801483559828938609L;
+			{
+				add("name");
+				add("class");
+				add("matric term");
+				add("college");
+				add("major");
+				add("address");
+				add("mailto");
+			}
+		};
+
+		FingerClient finger = new FingerClient();
+		try{
+			Preconditions.checkArgument(!Strings.isNullOrEmpty(netid), "netid cannot be null or empty");
+			finger.connect("rice.edu");
+			String infoRaw = finger.query(false, netid);
+			String[] info = infoRaw.split("\n");
+			Map<String, String> out = new HashMap<>();
+
+			for(String line : info){
+				String[] split = line.split(":", 2);
+				if(split.length == 2){
+					String key = split[0].trim().toLowerCase();
+					String val = split[1].trim();
+					if(KEYS.contains(key)){
+						out.put(key, val);
+					}
+				}
+			}
+
+			return out;
+		}finally{
+			try{
+				finger.disconnect();
+			}catch(Exception ignore){}
+		}
+	}
+
 }
