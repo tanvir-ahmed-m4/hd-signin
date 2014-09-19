@@ -204,21 +204,72 @@ angular.module('admin').factory('PayPeriodServices', ['$http', function($http){
 
 	return {
 		getPayPeriodEnds: getPayPeriodEnds,
+		createPayPeriodEnds: createPayPeriodEnds,
+		updatePayPeriodEnds: updatePayPeriodEnds,
+		deletePayPeriodEnds: updatePayPeriodEnds
 	}
 
-	function getPayPeriodEnds(includeFuture){
+	function getPayPeriodEnds(includeFuture, includeIds){
 		if(typeof includeFuture == 'undefined'){
 			includeFuture = false;
 		}
 		
+		if(typeof includeIds == 'undefined'){
+			includeIds = false;
+		}
+		
+		
 		return $http({
 			method: 'GET',
-			url: '/signin/rest/admin/scc/periods?includeFuture=' + includeFuture
+			url: '/signin/rest/admin/scc/periods',
+			params: {
+				'includeFuture': includeFuture,
+				'includeIds': includeIds
+			}
+		}).then(getPayload, processError);
+	}
+	
+	function createPayPeriodEnds(ends){
+		return $http({
+			method: 'PUT',
+			url: '/signin/rest/admin/scc/periods',
+			data: ends
+		}).then(getPayload, processError);
+	}
+	
+	function updatePayPeriodEnds(ends){
+		/* ends should be an array of {id: 0, end: date} objects */
+		return $http({
+			method: 'POST',
+			url: '/signin/rest/admin/scc/periods',
+			data: ends
+		}).then(getPayload, processError);
+	}
+	
+	function deletePayPeriodEnds(ids){
+		return $http({
+			method: 'DELETE',
+			url: '/signin/rest/admin/scc/periods',
+			data: ids
 		}).then(getPayload, processError);
 	}
 	
 }]);
 
+angular.module('admin').factory('EventLogServices', ['$http', function($http){
+
+	return {
+		getLog: getLog
+	}
+
+	function getLog(){
+		return $http({
+			method: 'GET',
+			url: '/signin/rest/admin/supervisor/log',
+		}).then(getPayload, processError);
+	}
+	
+}]);
 
 angular.module('admin').factory('TimeUtils', [function(){
 	return {

@@ -16,8 +16,12 @@ public class PayPeriodDao {
 	private PayPeriodMapper mapper;
 
 
-	public Integer createPayPeriodEnd(PeriodEnd end){
+	public Integer createPayPeriodEnd(Date end){
 		return mapper.createPayPeriodEnd(end);
+	}
+	
+	public List<PayPeriod> createPayPeriodEnds(List<Date> ends){
+		return null;
 	}
 
 	public List<PeriodEnd> getAllPayPeriodEnds(){
@@ -28,12 +32,12 @@ public class PayPeriodDao {
 		return mapper.getPayPeriodEnd(id);
 	}
 
-	public void updatePayPeriodEnd(PeriodEnd end){
-		mapper.updatePayPeriodEnd(end);
+	public void updatePayPeriodEnds(List<PeriodEnd> end){
+		mapper.updatePayPeriodEnd(null);
 	}
 
-	public void deletePayPeriodEnd(Integer id){
-		mapper.deletePayPeriodEnd(id);
+	public void deletePayPeriodEnds(List<Integer> id){
+		mapper.deletePayPeriodEnd(null);
 	}
 
 	public PayPeriod getCurrentPayPeriod(){

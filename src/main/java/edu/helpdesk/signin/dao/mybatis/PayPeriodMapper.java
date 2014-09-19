@@ -10,7 +10,7 @@ import edu.helpdesk.signin.model.PeriodEnd;
 
 public interface PayPeriodMapper {
 
-	public Integer createPayPeriodEnd(@Param("end") PeriodEnd end);
+	public Integer createPayPeriodEnd(@Param("end") Date end);
 	public List<PeriodEnd> getAllPayPeriodEnds();
 	public PeriodEnd getPayPeriodEnd(@Param("id") Integer id);
 	public void updatePayPeriodEnd(@Param("end") PeriodEnd end);

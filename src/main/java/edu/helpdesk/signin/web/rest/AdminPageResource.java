@@ -78,8 +78,8 @@ public class AdminPageResource {
 	public AdminPageResource() {
 		log.info("Administrative page resource created");
 	}
-	
-	
+
+
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -149,7 +149,7 @@ public class AdminPageResource {
 
 		});
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/log")
@@ -164,7 +164,7 @@ public class AdminPageResource {
 
 		});
 	}
-	
+
 
 	////////////////////////////////////////////////////////////////////////////
 	////////////////    Correction Request REST functions    ///////////////////
@@ -210,15 +210,15 @@ public class AdminPageResource {
 			public Response doTask() throws Exception {
 				boolean includeResolved = parseBool(getResolvedStr, false);
 				int employeeId = parseInt(idStr);
-				
+
 				Employee signedIn = utils.getAuthenticatedUser(request);
-				
+
 				Preconditions.checkArgument(signedIn != null, "Signed in user is not an employee");
-				
+
 				if(signedIn.getId() != employeeId){
 					AuthenticationUtil.get().verifyMinimumPermissionLevel(EmployeeType.SUPERVISOR, signedIn);
 				}
-				
+
 				List<CorrectionRequest> allCorrections = getCorrectionRequestsInternal(includeResolved);
 				List<CorrectionRequest> out = new ArrayList<>();
 
@@ -267,7 +267,7 @@ public class AdminPageResource {
 
 				Preconditions.checkArgument(e != null, "Signed in user is not an employee");
 				Preconditions.checkArgument(request != null, "No request with id " + idStr + " in database");
-				
+
 				request.setCompleter(e);
 				signinDao.applyCorrectionRequest(request);
 
@@ -297,7 +297,7 @@ public class AdminPageResource {
 			}
 		});
 	}
-	
+
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_PATH + "/correction/{id}/cancel")
@@ -312,10 +312,10 @@ public class AdminPageResource {
 				Preconditions.checkArgument(e != null, "Signed in user is not an employee");
 				Preconditions.checkArgument(request != null, "No request with id " + idStr + " in database");
 				Preconditions.checkArgument(e.getId() == request.getSubmitter().getId(), "Cannot cancel another employee's correction request");
-				
+
 				request.setCompleter(e);
 				signinDao.rejectCorrectionRequest(request);
-				
+
 				return Response.ok(signinDao.getCorrectionRequest(request.getId())).build();
 			}
 		});
@@ -415,18 +415,18 @@ public class AdminPageResource {
 	@Description("Update an existing employee using the given data")
 	public Response updateEmployee(@Context final HttpServletRequest request, final Employee e){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
-			
+
 			@Override
 			public Response doTask() throws Exception {
 				Employee signedIn = utils.getAuthenticatedUser(request);
-				
+
 				Preconditions.checkArgument(e != null, "Passed in employee is invalid");
 				Preconditions.checkArgument(signedIn != null, "Signed in user is not an employee");
-				
+
 				if(e.getId() != signedIn.getId()){
 					AuthenticationUtil.get().verifyMinimumPermissionLevel(EmployeeType.SCC_LEAD, signedIn);
 				}
-				
+
 				employeeDao.updateEmployee(e);
 				return Response.ok(employeeDao.getEmployee(e.getId())).build();
 			}
@@ -505,32 +505,88 @@ public class AdminPageResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_PATH + "/periods")
-	@Description("Get pay period end dates")
-	public Response getPeriods(@QueryParam("includeFuture") final String includeFutureStr){
+	@Description("Get pay period end dates. if includeFuture is true, period ends in the future will be returned. If includeIds is true, the IDs for each period will be returned")
+	public Response getPeriods(@QueryParam("includeFuture") final String includeFutureStr, @QueryParam("includeIds") final String includeIdsStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
 			@Override
 			public Response doTask() {
 				Boolean includeFuture = parseBool(includeFutureStr, false);
+				Boolean includeIds = parseBool(includeIdsStr, false);
 
 				List<PeriodEnd> ends = payPeriodDao.getAllPayPeriodEnds();
 
-				List<Date> out = new ArrayList<>();
+				List<?> out;
+				List<PeriodEnd> temp = new ArrayList<>();
 
 				final Date maxEnd = new Date(payPeriodDao.getCurrentPayPeriod().getEndOfPeriod().getTime() + 1); 
 
-				for(int i = 0; i < ends.size(); i++){
-					Date end = ends.get(i).getEnd();
 
+				for(int i = 0; i < ends.size(); i++){
 					if(includeFuture){
-						out.add(end);
+						temp.add(ends.get(i));
 					}
-					else if(end.before(maxEnd)){
-						out.add(end);
+					else if(ends.get(i).getEnd().before(maxEnd)){
+						temp.add(ends.get(i));
 					}
 				}
 
+				if(includeIds){
+					out = temp;
+				}
+				else{
+					List<Date> tmp = new ArrayList<Date>();
+					for(int i = 0; i < temp.size(); i++){
+						tmp.add(temp.get(i).getEnd());
+					}
+					out = tmp;
+				}
+
 				return Response.ok(out).build();
+			}
+		});
+	}
+
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/periods")
+	@Description("Create pay periods ends for the given dates")
+	public Response createPeriods(final List<Date> periodEnds){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+
+			@Override
+			public Response doTask() {
+				return Response.ok(payPeriodDao.createPayPeriodEnds(periodEnds)).build();
+			}
+		});
+	}
+
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/periods")
+	@Description("Update pay periods with the given ids")
+	public Response updatePeriods(final List<PeriodEnd> ends){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+
+			@Override
+			public Response doTask() {
+				payPeriodDao.updatePayPeriodEnds(ends);
+				return Response.ok().build();
+			}
+		});
+	}
+
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/periods")
+	@Description("Delete all pay periods with the given ids")
+	public Response deletePeriods(final List<Integer> ids){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+
+			@Override
+			public Response doTask() {
+				payPeriodDao.deletePayPeriodEnds(ids);
+				return Response.ok().build();
 			}
 		});
 	}
