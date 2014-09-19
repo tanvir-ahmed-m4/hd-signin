@@ -172,7 +172,7 @@ public class AdminPageResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction/{id}")
+	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/correction/{id}")
 	@Description("Get the correction with the given ID")
 	public Response getCorrectionRequestById(@PathParam("id") final String idStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
@@ -186,7 +186,7 @@ public class AdminPageResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction")
+	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/correction")
 	@Description("Get all correction requests. if " + GET_RESOLVED + " is set to true, resolved correction requests will be returned. Otherwise, only pending correction requests will be returned")
 	public Response getCorrectionRequests(@QueryParam(GET_RESOLVED) final String getResolvedStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
@@ -201,7 +201,7 @@ public class AdminPageResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee/{id}/correction")
+	@Path(PathConstants.ADMIN_SCC_PATH + "/employee/{id}/correction")
 	@Description("Get all correction requests for an employee")
 	public Response createCorrectionRequest(@PathParam("id") final String idStr, @QueryParam(GET_RESOLVED) final String getResolvedStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {

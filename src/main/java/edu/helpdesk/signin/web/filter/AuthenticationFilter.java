@@ -38,15 +38,13 @@ public class AuthenticationFilter implements Filter{
 	@Autowired
 	private EmployeeDao dao;
 
-	public AuthenticationFilter() {
-		// TODO Auto-generated constructor stub
-	}
+	public AuthenticationFilter() {}
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		ServletContext servletContext = filterConfig.getServletContext();
-		WebApplicationContext webApplicationContext =  WebApplicationContextUtils.getWebApplicationContext(servletContext);
-		AutowireCapableBeanFactory autowireCapableBeanFactory =  webApplicationContext.getAutowireCapableBeanFactory();
+		WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+		AutowireCapableBeanFactory autowireCapableBeanFactory = webApplicationContext.getAutowireCapableBeanFactory();
 		autowireCapableBeanFactory.autowireBean(this);
 	}
 
@@ -106,8 +104,10 @@ public class AuthenticationFilter implements Filter{
 		}catch(Exception ex){
 			log.error("Exception while filtering", ex);
 			response.sendError(500);
+			return;
 		}
-		Thread.currentThread().setName(String.format("Ajax handler %d", threadId++));
+		
+		Thread.currentThread().setName(String.format("Ajax request %d", threadId++));
 		chain.doFilter(request, response);
 	}
 
@@ -116,7 +116,7 @@ public class AuthenticationFilter implements Filter{
 
 	private void writeResponse(JSONObject json, HttpServletResponse response){
 		try{
-			response.setStatus(400);
+			response.setStatus(401);
 			response.getOutputStream().write(json.toString().getBytes("UTF8"));
 			response.setContentType(MediaType.APPLICATION_JSON);
 		}catch(Exception e){

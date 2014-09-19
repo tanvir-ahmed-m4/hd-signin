@@ -32,7 +32,22 @@
 		}
 		
 		$http.get('/signin/rest/docs/apireference').success(function(data){
-			$scope.data = data.apiEndpoints;
+			data = data.apiEndpoints;
+			var out = [];
+			
+			for(var i = 0; i < data.length; i++){
+				var prefix = data[i].path;
+				var paths = data[i].subpaths;
+				
+				//out.push({path: prefix, description: 'Methods starting with ' + prefix});
+				
+				for(var j = 0; j < paths.length; j++){
+					paths[j].path = prefix + paths[j].path;
+					out.push(paths[j]);
+				}
+			}
+			
+			$scope.data = out;
 		});
 	}]);
 	</script>
@@ -49,7 +64,7 @@
 				<div class="panel panel-primary">
 					<div class="panel-heading"><h3 class="panel-title">API reference</h3></div>
 					<div class="table-responsive">
-						<table class="table table-striped" ng-repeat="path in data">
+						<table class="table table-striped">
 							<thead>
 								<tr>
 									<th>URL</th>
@@ -60,9 +75,9 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr ng-repeat="apiRef in path.subpaths">
-									<td ng-if="apiRef.method == 'GET'" style="white-space:nowrap;"><a href="{{getHost() + base + path.path + apiRef.path}}">{{base + path.path + apiRef.path}}</a></td>
-									<td ng-if="apiRef.method != 'GET'" style="white-space:nowrap;">{{base + path.path + apiRef.path}}</td>
+								<tr ng-repeat="apiRef in data">
+									<td ng-if="apiRef.method == 'GET'" style="white-space:nowrap;"><a href="{{getHost() + base + apiRef.path}}">{{base + apiRef.path}}</a></td>
+									<td ng-if="apiRef.method != 'GET'" style="white-space:nowrap;">{{base + apiRef.path}}</td>
 									<td>{{apiRef.method}}</td>
 									<td>{{apiRef.description}}</td>
 									<td>{{apiRef.paramClass}}</td>
