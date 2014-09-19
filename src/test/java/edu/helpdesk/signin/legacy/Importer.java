@@ -46,13 +46,11 @@ public class Importer{
 	@Autowired
 	private LegacyEmployeeMapper legacyEmployeeMapper;
 
-
 	@Autowired
 	private EmployeeDao employeeDao;
 
 	@Autowired
 	private SigninMapper signinMapper;
-
 
 	public Importer() {
 	}
@@ -157,18 +155,7 @@ public class Importer{
 		List<Employee> employees = new ArrayList<>();
 
 		log.info("Read in {} employees", legacyEmployees.size());
-
-		for(LegEmployee e : legacyEmployees){
-			employees.add(upgrade(e, levels));
-			levels.remove(e.getNetId());
-		}
-
-		log.info("There are {} orphan permission levels, creating employees for them...", levels.size());
-		for(Map.Entry<String, EmployeeType> entry : levels.entrySet()){
-			employees.add(generateEmployee(entry.getKey(), entry.getValue()));
-		}
-		log.info("Done generating employees for orphan permission levels");
-
+		
 		if(isDryRun == false){
 			log.info("Writing {} employees to the database", employees.size());
 
@@ -192,7 +179,40 @@ public class Importer{
 
 			log.info("Done writing employees to database. Wrote {}, skipped {}", written, skipped);
 		}
+		
+		
 
+		for(LegEmployee e : legacyEmployees){
+			employees.add(upgrade(e, levels));
+			levels.remove(e.getNetId());
+		}
+
+		log.info("There are {} orphan permission levels, creating employees for them...", levels.size());
+		for(Map.Entry<String, EmployeeType> entry : levels.entrySet()){
+			employees.add(generateEmployee(entry.getKey(), entry.getValue()));
+		}
+		log.info("Done generating employees for orphan permission levels");
+		
+		if(isDryRun == false){
+			log.info("Writing {} employees to the database", employees.size());
+			
+			int written = 0, skipped = 0;
+			for(int i = 0; i < employees.size(); i++){
+				Employee e = employees.get(i);
+				Employee existing = employeeDao.getEmployeeByNetId(e.getNetId());
+				if(existing != null){
+					skipped++;
+					log.info("Employee {} ({}) already exists in the database, not updating", e.getNetId(), e.getFirstName());
+				}
+				else{
+					employeeDao.createEmployee(e);
+					written++;
+				}
+			}
+			
+			log.info("Done writing employees to database. Wrote {}, skipped {}", written, skipped);
+		}
+		
 		log.info("Done importing employees");
 	}
 

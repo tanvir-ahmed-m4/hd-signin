@@ -22,7 +22,6 @@
 		<property name="mapperInterface" value="edu.helpdesk.signin.legacy.dao.mybatis.PrivilegesMapper" />
 		<property name="sqlSessionFactory" ref="legacySqlSessionFactory" />
 	</bean>
-<<<<<<< Upstream, based on gs.dev
 	
 	<bean id="legacyEmployeeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
 		<property name="mapperInterface" value="edu.helpdesk.signin.legacy.dao.mybatis.LegacyEmployeeMapper" />
@@ -33,8 +32,5 @@
 		<property name="mapperInterface" value="edu.helpdesk.signin.legacy.dao.mybatis.LegacySigninMapper" />
 		<property name="sqlSessionFactory" ref="legacySqlSessionFactory" />
 	</bean>
-
-=======
->>>>>>> 5b68614 Added support for loading the legacy permissions
 
 </beans>
