@@ -203,13 +203,22 @@ public class AdminPageResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_PATH + "/employee/{id}/correction")
 	@Description("Get all correction requests for an employee")
-	public Response createCorrectionRequest(@PathParam("id") final String idStr, @QueryParam(GET_RESOLVED) final String getResolvedStr){
+	public Response createCorrectionRequest(@Context final HttpServletRequest request, @PathParam("id") final String idStr, @QueryParam(GET_RESOLVED) final String getResolvedStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
 			@Override
-			public Response doTask() {
+			public Response doTask() throws Exception {
 				boolean includeResolved = parseBool(getResolvedStr, false);
 				int employeeId = parseInt(idStr);
+				
+				Employee signedIn = utils.getAuthenticatedUser(request);
+				
+				Preconditions.checkArgument(signedIn != null, "Signed in user is not an employee");
+				
+				if(signedIn.getId() != employeeId){
+					AuthenticationUtil.get().verifyMinimumPermissionLevel(EmployeeType.SUPERVISOR, signedIn);
+				}
+				
 				List<CorrectionRequest> allCorrections = getCorrectionRequestsInternal(includeResolved);
 				List<CorrectionRequest> out = new ArrayList<>();
 
@@ -246,7 +255,7 @@ public class AdminPageResource {
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction/{id}/approve")
+	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/correction/{id}/approve")
 	@Description("Approve a correction request")
 	public Response approveCorrectionRequest(@Context final HttpServletRequest ajaxRequest, @PathParam("id") final String idStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
@@ -256,16 +265,9 @@ public class AdminPageResource {
 				CorrectionRequest request = signinDao.getCorrectionRequest(parseInt(idStr));
 				Employee e = utils.getAuthenticatedUser(ajaxRequest);
 
-				if(request == null){
-					//TODO error handling
-					return null;
-				}
-
-				if(e == null){
-					//TODO error handling
-					return null;
-				}
-
+				Preconditions.checkArgument(e != null, "Signed in user is not an employee");
+				Preconditions.checkArgument(request != null, "No request with id " + idStr + " in database");
+				
 				request.setCompleter(e);
 				signinDao.applyCorrectionRequest(request);
 
@@ -276,7 +278,7 @@ public class AdminPageResource {
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/correction/{id}/deny")
+	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/correction/{id}/deny")
 	@Description("Deny a correction request")
 	public Response denyCorrectionRequest(@Context final HttpServletRequest ajaxRequest, @PathParam("id") final String idStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
@@ -285,19 +287,35 @@ public class AdminPageResource {
 				CorrectionRequest request = signinDao.getCorrectionRequest(parseInt(idStr));
 				Employee e = utils.getAuthenticatedUser(ajaxRequest);
 
-				if(request == null){
-					//TODO error handling
-					return null;
-				}
-
-				if(e == null){
-					//TODO error handling
-					return null;
-				}
+				Preconditions.checkArgument(e != null, "Signed in user is not an employee");
+				Preconditions.checkArgument(request != null, "No request with id " + idStr + " in database");
 
 				request.setCompleter(e);
 				signinDao.rejectCorrectionRequest(request);
 
+				return Response.ok(signinDao.getCorrectionRequest(request.getId())).build();
+			}
+		});
+	}
+	
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_PATH + "/correction/{id}/cancel")
+	@Description("ALlows a user to cancel their own orrection request")
+	public Response cancelCorrectionRequest(@Context final HttpServletRequest ajaxRequest, @PathParam("id") final String idStr){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+			@Override
+			public Response doTask() {
+				CorrectionRequest request = signinDao.getCorrectionRequest(parseInt(idStr));
+				Employee e = utils.getAuthenticatedUser(ajaxRequest);
+
+				Preconditions.checkArgument(e != null, "Signed in user is not an employee");
+				Preconditions.checkArgument(request != null, "No request with id " + idStr + " in database");
+				Preconditions.checkArgument(e.getId() == request.getSubmitter().getId(), "Cannot cancel another employee's correction request");
+				
+				request.setCompleter(e);
+				signinDao.rejectCorrectionRequest(request);
+				
 				return Response.ok(signinDao.getCorrectionRequest(request.getId())).build();
 			}
 		});
@@ -395,10 +413,20 @@ public class AdminPageResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_PATH + "/employee")
 	@Description("Update an existing employee using the given data")
-	public Response updateEmployee(final Employee e){
+	public Response updateEmployee(@Context final HttpServletRequest request, final Employee e){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+			
 			@Override
-			public Response doTask() {
+			public Response doTask() throws Exception {
+				Employee signedIn = utils.getAuthenticatedUser(request);
+				
+				Preconditions.checkArgument(e != null, "Passed in employee is invalid");
+				Preconditions.checkArgument(signedIn != null, "Signed in user is not an employee");
+				
+				if(e.getId() != signedIn.getId()){
+					AuthenticationUtil.get().verifyMinimumPermissionLevel(EmployeeType.SCC_LEAD, signedIn);
+				}
+				
 				employeeDao.updateEmployee(e);
 				return Response.ok(employeeDao.getEmployee(e.getId())).build();
 			}
