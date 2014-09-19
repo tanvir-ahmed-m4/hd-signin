@@ -11,6 +11,7 @@
  	<import resource="databaseBeans.xml"/>
  	<import resource="authBeans.xml"/>
  	<import resource="utilBeans.xml" />
+ 	<import resource="legacyDatabaseBeans.xml" />
  	
 	<context:component-scan base-package="edu.helpdesk.signin.web.rest" />
  	
