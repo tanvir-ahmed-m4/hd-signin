@@ -22,5 +22,10 @@
 		<property name="mapperInterface" value="edu.helpdesk.signin.legacy.dao.mybatis.PrivilegesMapper" />
 		<property name="sqlSessionFactory" ref="legacySqlSessionFactory" />
 	</bean>
+	
+	<bean id="legacyEmployeeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="edu.helpdesk.signin.legacy.dao.mybatis.LegacyEmployeeMapper" />
+		<property name="sqlSessionFactory" ref="legacySqlSessionFactory" />
+	</bean>
 
 </beans>

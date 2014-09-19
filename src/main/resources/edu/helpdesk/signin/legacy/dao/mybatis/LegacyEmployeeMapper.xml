@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.helpdesk.signin.legacy.dao.mybatis.LegacyEmployeeMapper">
+
+	<resultMap id="LegacyEmployeeMapper" type="edu.helpdesk.signin.legacy.model.LegEmployee">
+		<result property="riceId" column="student_id" />
+		<result property="netId" column="netid" />
+		<result property="name" column="name" />
+		<result property="isWorkStudy" column="work_study" />
+		<result property="hourlyWage" column="hourly_wage" />
+	</resultMap>
+	
+
+	<select id="getAllEmployees" resultMap="LegacyEmployeeMapper">
+		SELECT student_id, netid, name, work_study, hourly_wage FROM employees
+	</select>
+
+
+</mapper>
