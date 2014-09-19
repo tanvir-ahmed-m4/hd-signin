@@ -170,14 +170,14 @@ angular.module('admin').factory('correctionRequestServices', ['$http', function(
 		}
 		return $http({
 			method: 'POST',
-			url: '/signin/rest/admin/scclead/correction/' + id + '/' + end
+			url: '/signin/rest/admin/supervisor/correction/' + id + '/' + end
 		}).then(getPayload, processError);
 	}
 	
 	function getPendingCorrectionRequests(){
 		return $http({
 			method: 'GET',
-			url: '/signin/rest/admin/scclead/correction'
+			url: '/signin/rest/admin/supervisor/correction'
 		}).then(getPayload, processError);
 	}
 
@@ -185,7 +185,7 @@ angular.module('admin').factory('correctionRequestServices', ['$http', function(
 	function getCorrectionRequestsForEmployee(employeeId){
 		return $http({
 			method: 'GET',
-			url: '/signin/rest/admin/scclead/employee/' + employeeId + '/correction'
+			url: '/signin/rest/admin/scc/employee/' + employeeId + '/correction'
 		}).then(getPayload, processError);
 
 	}

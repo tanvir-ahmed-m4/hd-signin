@@ -64,9 +64,13 @@ public class AuthenticationFilter implements Filter{
 		if(path.startsWith(URL_PREFIX)){
 			path = path.substring(URL_PREFIX.length());
 		}
+		if(path.startsWith("/")){
+			path = path.substring(1);
+		}
 
-		String requestedLevel = path.substring(0, path.indexOf('/'));
-
+		String requestedLevel = "/" + path.substring(0, path.indexOf('/'));
+		
+		
 		EmployeeType neededType = null;
 
 		switch(requestedLevel){
@@ -76,7 +80,7 @@ public class AuthenticationFilter implements Filter{
 		case PathConstants.ADMIN_SYSADMIN_PATH: neededType = EmployeeType.SYSADMIN; break;
 		default: neededType = EmployeeType.SYSADMIN; break; /* Sysadmins can do as they please */
 		}
-
+		
 		try{
 			Employee e = WebUtils.get().getAuthenticatedUser(request);
 			Map<String, String> errorMsg = new HashMap<String, String>();
