@@ -38,5 +38,4 @@
 		<property name="sqlSessionFactory" ref="legacySqlSessionFactory" />
 	</bean>
 
-
 </beans>
