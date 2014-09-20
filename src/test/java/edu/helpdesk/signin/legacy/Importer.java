@@ -46,6 +46,7 @@ public class Importer{
 	@Autowired
 	private LegacyEmployeeMapper legacyEmployeeMapper;
 
+
 	@Autowired
 	private EmployeeDao employeeDao;
 
@@ -192,27 +193,31 @@ public class Importer{
 			employees.add(generateEmployee(entry.getKey(), entry.getValue()));
 		}
 		log.info("Done generating employees for orphan permission levels");
-		
+
 		if(isDryRun == false){
 			log.info("Writing {} employees to the database", employees.size());
-			
+
 			int written = 0, skipped = 0;
 			for(int i = 0; i < employees.size(); i++){
 				Employee e = employees.get(i);
 				Employee existing = employeeDao.getEmployeeByNetId(e.getNetId());
+
 				if(existing != null){
 					skipped++;
-					log.info("Employee {} ({}) already exists in the database, not updating", e.getNetId(), e.getFirstName());
+					log.info("Employee {} ({}) already exists in the database, updating", e.getNetId(), e.getFirstName());
+					e.setEmployeeType(existing.getEmployeeType());
+					e.setId(existing.getId());
+					employeeDao.updateEmployee(e);
 				}
 				else{
 					employeeDao.createEmployee(e);
 					written++;
 				}
 			}
-			
+
 			log.info("Done writing employees to database. Wrote {}, skipped {}", written, skipped);
 		}
-		
+
 		log.info("Done importing employees");
 	}
 
