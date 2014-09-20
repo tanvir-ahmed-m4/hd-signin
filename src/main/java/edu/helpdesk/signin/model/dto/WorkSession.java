@@ -2,11 +2,15 @@ package edu.helpdesk.signin.model.dto;
 
 import java.util.Date;
 
+import edu.helpdesk.signin.model.SigninType;
+
 public class WorkSession {
 	private int id;
 	private int employeeId;
 	private Date signinTime;
 	private Date signoutTime;
+	private SigninType type;
+	
 	public int getId() {
 		return id;
 	}
@@ -31,11 +35,17 @@ public class WorkSession {
 	public void setSignoutTime(Date signoutTime) {
 		this.signoutTime = signoutTime;
 	}
+	public SigninType getType() {
+		return type;
+	}
+	public void setType(SigninType type) {
+		this.type = type;
+	}
 	@Override
 	public String toString() {
 		return "WorkSession [id=" + id + ", employeeId=" + employeeId
 				+ ", signinTime=" + signinTime + ", signoutTime=" + signoutTime
-				+ "]";
+				+ ", type=" + type + "]";
 	}
 	@Override
 	public int hashCode() {
@@ -47,6 +57,7 @@ public class WorkSession {
 				+ ((signinTime == null) ? 0 : signinTime.hashCode());
 		result = prime * result
 				+ ((signoutTime == null) ? 0 : signoutTime.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 	@Override
@@ -72,8 +83,8 @@ public class WorkSession {
 				return false;
 		} else if (!signoutTime.equals(other.signoutTime))
 			return false;
+		if (type != other.type)
+			return false;
 		return true;
 	}
-	
-	
 }

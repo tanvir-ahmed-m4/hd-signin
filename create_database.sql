@@ -2,8 +2,11 @@ DROP TABLE IF EXISTS `CorrectionRequest`;
 DROP TABLE IF EXISTS `SigninData`;
 DROP TABLE IF EXISTS `Employee`;
 
+DROP TABLE IF EXISTS `SigninType`;
 DROP TABLE IF EXISTS `EmployeeType`;
 DROP TABLE IF EXISTS `CorrectionRequestStatus`;
+
+
 
 DROP TABLE IF EXISTS `PeriodEnd`;
 
@@ -28,6 +31,11 @@ CREATE TABLE `EmployeeType` (
 ) CHARSET = UTF8, ENGINE = InnoDB;
 
 
+CREATE TABLE `SigninType` (
+	SigninTypeId INT NOT NULL PRIMARY KEY,
+	SigninType VARCHAR(128) NOT NULL
+)CHARSET = UTF8, ENGINE = InnoDB;
+
 CREATE TABLE `Employee` (
 	EmployeeId        INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	EmployeeFirstName VARCHAR(128) NOT NULL,
@@ -44,6 +52,7 @@ CREATE TABLE `Employee` (
 CREATE TABLE `SigninData` (
 	SigninDataId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	EmployeeId   INT NOT NULL,
+	SigninTypeId INT NOT NULL,
 	SigninTime   TIMESTAMP NOT NULL,
 	SignoutTime  TIMESTAMP,
 	CreateDate   TIMESTAMP NOT NULL,
@@ -51,7 +60,8 @@ CREATE TABLE `SigninData` (
 	INDEX (SigninTime),
 	Index (SignoutTime),
 
-	FOREIGN KEY (EmployeeId) REFERENCES `Employee` (`EmployeeId`)
+	FOREIGN KEY (EmployeeId) REFERENCES `Employee` (`EmployeeId`),
+	FOREIGN KEY (SigninTypeId) REFERENCES `SigninType` (`SigninTypeId`)
 
 ) CHARSET = UTF8, ENGINE = InnoDB, AUTO_INCREMENT = 1;
 
@@ -84,3 +94,10 @@ INSERT INTO `CorrectionRequestStatus` (`CorrectionRequestStatusId`, `CorrectionR
 	(1, 'APPROVED'),
 	(2, 'DENIED');
 
+INSERT INTO `SigninType` (`SigninTypeId`, `SigninType`) VALUES
+	(0, 'UNKNOWN'),
+	(1, 'SWIPE'),
+	(2, 'COMPUTER'),
+	(3, 'EDIT'),
+	(4, 'CORRECTION'),
+	(5, 'ADMIN');

@@ -19,6 +19,7 @@
 		<result property="employeeId" column="EmployeeId" />
 		<result property="signinTime" column="SigninTime" />
 		<result property="signoutTime" column="SignoutTime" />
+		<result property="type" column="SigninType" />
 	</resultMap>
 	
 	<sql id="deleteAllSigninSessionsForUser">
@@ -52,23 +53,33 @@
 		LEFT JOIN CorrectionRequestStatus AS cs ON cs.CorrectionRequestStatusId = cr.CorrectionRequestStatusId
 	</sql>
 	
+	<sql id="selectWorkSessionFragment">
+		SELECT
+			sd.SigninDataId AS Id,
+			@EmployeeId AS EmployeeId,
+			sd.SigninTime,
+			IF(sd.SignoutTime = 0, NULL, sd.SignoutTime) AS SignoutTime,
+			st.SigninType
+		FROM SigninData AS sd
+		LEFT JOIN SigninType AS st ON st.SigninTypeId = sd.SigninTypeId
+	</sql>
+	
 	<select id="getAllWorkSessionsForEmployee" resultMap="WorkSessionMapper">
 		<!-- List<WorkSession> getAllWorkSessionsForEmployee(@Param("id") Integer id, @Param("after") Date sessionStartsAfter, @Param("before") Date sessionStartsBefore); -->
 		SET @EmployeeId = #{id};
 		
-		SELECT SigninDataId AS Id, @EmployeeId AS EmployeeId, SigninTime, IF(SignoutTime = 0, NULL, SignoutTime) AS SignoutTime
-		FROM SigninData WHERE
-		EmployeeId = @EmployeeId AND
-		#{after} &lt; SigninTime AND
-		SigninTime &lt; #{before}
-		ORDER BY SigninTime ASC;
+		<include refid="selectWorkSessionFragment" />
+		WHERE
+			sd.EmployeeId = @EmployeeId AND
+			#{after} &lt; sd.SigninTime AND
+			sd.SigninTime &lt; #{before}
+			ORDER BY sd.SigninTime ASC;
 	</select>
 	
 	<select id="getWorkSession" resultMap="WorkSessionMapper">
 	<!-- WorkSession getWorkSession(@Param("id") Integer id); -->
-		SELECT SigninDataId AS Id, @EmployeeId AS EmployeeId, SigninTime, SignoutTime
-		FROM SigninData WHERE
-		SigninDataId = #{id};
+		<include refid="selectWorkSessionFragment" />
+		sd.SigninDataId = #{id};
 	</select>
 
 	<select id="doSwipe" resultMap="WorkSessionMapper">
@@ -82,9 +93,10 @@
 	
 			BEGIN
 				SET @out = 0;
+				SET @type = (SELECT SigninTypeId FROM SigninType WHERE SigninType = 'SWIPE' LIMIT 1);
 				IF rowId IS NULL THEN 
-					INSERT INTO SigninData (EmployeeId, SigninTime, SignoutTime, CreateDate)
-					VALUES (eid, swipedTime, 0, UTC_TIMESTAMP());
+					INSERT INTO SigninData (EmployeeId, SigninTime, SigninTypeId, SignoutTime, CreateDate)
+					VALUES (eid, swipedTime, @type, 0, UTC_TIMESTAMP());
 					SET @out = LAST_INSERT_ID();
 				ELSE 
 					UPDATE SigninData
@@ -143,11 +155,12 @@
 	<update id="applyCorrectionRequest">
 		<!-- void applyCorrectionRequest(@Param("c") CorrectionRequest c); -->
 		SET @newStatus = (SELECT CorrectionRequestStatusId FROM CorrectionRequestStatus WHERE CorrectionRequestStatusName = 'APPROVED' LIMIT 1);
-		
+		SET @type = (SELECT SigninTypeId FROM SigninType WHERE SigninType = 'CORRECTION' LIMIT 1);
 		<!-- Update the timecard entry -->
 		UPDATE SigninData SET
 			SigninTime = #{c.newSigninTime},
-			SignoutTime = #{c.newSignoutTime}
+			SignoutTime = #{c.newSignoutTime},
+			SigninTypeId = @type
 		WHERE
 			SigninDataId = #{c.signinId};
 		
