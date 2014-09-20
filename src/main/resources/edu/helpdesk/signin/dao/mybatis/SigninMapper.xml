@@ -269,5 +269,12 @@
 		WHERE CorrectionRequestId = #{id}
 	
 	</delete>
+	
+	
+	<insert id="importLegacyData_DEV_ONLY">
+		INSERT INTO SigninData (EmployeeId, SigninTypeId, SigninTime, SignoutTime, CreateDate)
+		VALUES
+		<foreach collection="entries" item="e" separator=",">(#{e.employeeId}, #{e.type.id}, #{e.signinTime}, #{e.signoutTime}, UTC_TIMESTAMP() )</foreach>
+	</insert>
 
 </mapper>

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import edu.helpdesk.signin.legacy.model.SigninDataEntry;
 import edu.helpdesk.signin.model.CorrectionRequest;
 import edu.helpdesk.signin.model.CorrectionRequestStatus;
 import edu.helpdesk.signin.model.dto.CorrectionRequestDto;
@@ -29,5 +30,6 @@ public interface SigninMapper {
 	
 	List<WorkSession> getAllWorkSessionsForEmployee(@Param("id") Integer id, @Param("after") Date sessionStartsAfter, @Param("before") Date sessionStartsBefore);
 	WorkSession getWorkSession(@Param("id") Integer id);
-
+	
+	public void importLegacyData_DEV_ONLY(@Param("entries") List<SigninDataEntry> entries);
 }
