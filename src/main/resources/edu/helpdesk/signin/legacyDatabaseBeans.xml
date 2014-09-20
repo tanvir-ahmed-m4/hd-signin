@@ -32,5 +32,10 @@
 		<property name="mapperInterface" value="edu.helpdesk.signin.legacy.dao.mybatis.LegacySigninMapper" />
 		<property name="sqlSessionFactory" ref="legacySqlSessionFactory" />
 	</bean>
+	
+	<bean id="legacyPayPeriodEndMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="edu.helpdesk.signin.legacy.dao.mybatis.LegacyPayPeriodEndMapper" />
+		<property name="sqlSessionFactory" ref="legacySqlSessionFactory" />
+	</bean>
 
 </beans>
