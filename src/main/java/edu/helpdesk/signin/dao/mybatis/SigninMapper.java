@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import edu.helpdesk.signin.legacy.model.SigninDataEntry;
 import edu.helpdesk.signin.model.CorrectionRequest;
 import edu.helpdesk.signin.model.CorrectionRequestStatus;
 import edu.helpdesk.signin.model.dto.CorrectionRequestDto;
@@ -24,5 +25,6 @@ public interface SigninMapper {
 	List<CorrectionRequestDto> getCorrectionRequestsByStatus(@Param("s") List<CorrectionRequestStatus> s);
 	CorrectionRequestDto getCorrectionRequestById(@Param("id") Integer id);
 	WorkSession getWorkSession(@Param("id") Integer id);
-
+	
+	public void importLegacyData_DEV_ONLY(@Param("entries") List<SigninDataEntry> entries);
 }

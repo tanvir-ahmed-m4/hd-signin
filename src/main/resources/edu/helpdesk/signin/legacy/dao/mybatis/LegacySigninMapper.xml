@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.helpdesk.signin.legacy.dao.mybatis.LegacySigninMapper">
+
+	<resultMap id="LegSigninData" type="edu.helpdesk.signin.legacy.model.LegSigninData">
+		<id property="id" column="id" />
+		<result property="riceId" column="student_id" />
+		<result property="timeIn" column="time_in" />
+		<result property="timeOut" column="time_out" />
+		<result property="elapsed" column="netid" />
+		<result property="type" column="type" />
+	</resultMap>
+	
+
+	<select id="getAllSigninData" resultMap="LegSigninData">
+		SELECT id, student_id, time_in, time_out, type FROM current_period
+	</select>
+
+
+</mapper>
