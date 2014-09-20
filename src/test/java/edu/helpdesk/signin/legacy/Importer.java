@@ -1,6 +1,7 @@
 package edu.helpdesk.signin.legacy;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import edu.helpdesk.signin.dao.EmployeeDao;
+import edu.helpdesk.signin.dao.PayPeriodDao;
 import edu.helpdesk.signin.dao.mybatis.SigninMapper;
 import edu.helpdesk.signin.legacy.dao.mybatis.LegacyEmployeeMapper;
+import edu.helpdesk.signin.legacy.dao.mybatis.LegacyPayPeriodEndMapper;
 import edu.helpdesk.signin.legacy.dao.mybatis.LegacySigninMapper;
 import edu.helpdesk.signin.legacy.dao.mybatis.PrivilegesMapper;
 import edu.helpdesk.signin.legacy.model.LegEmployee;
@@ -53,6 +56,11 @@ public class Importer{
 	@Autowired
 	private SigninMapper signinMapper;
 
+	@Autowired
+	private LegacyPayPeriodEndMapper legacyPayPeriodMapper;
+	
+	@Autowired
+	private PayPeriodDao payPeriodDao;
 
 	public Importer() {
 	}
@@ -83,7 +91,11 @@ public class Importer{
 
 
 	private void runPayPeriodEndImport(){
-		
+		List<Date> ends = legacyPayPeriodMapper.getAllPeriodEnds();
+		for(Date d : ends){
+			payPeriodDao.createPayPeriodEnd(d);
+		}
+		log.info("Added {} pay period ends to the database", ends.size());
 	}
 
 	private void runSigninDataImport(){
