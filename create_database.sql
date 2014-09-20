@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS `PeriodEnd`;
 -- End of drop tables, begin of create tables
 
 CREATE TABLE `PeriodEnd` (
-	PeriodEndId INT NOT NULL PRIMARY KEY,
+	PeriodEndId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	PeriodEnd   DATE NOT NULL,
 
 	INDEX (PeriodEnd)
