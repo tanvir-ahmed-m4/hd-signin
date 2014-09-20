@@ -38,7 +38,7 @@
 	
 	<insert id="createPayPeriodEnd">
 		<!-- public Integer createPayPeriodEnd(@Param("end") PeriodEnd end); -->
-		invalid
+		INSERT INTO PeriodEnd (PeriodEnd) VALUES (#{end})
 	</insert>
 	
 	<delete id="deletePayPeriodEnd">
