@@ -2,12 +2,8 @@ package edu.helpdesk.signin.web.rest;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -21,15 +17,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.net.finger.FingerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-
 import edu.helpdesk.signin.dao.EmployeeDao;
 import edu.helpdesk.signin.dao.PayPeriodDao;
 import edu.helpdesk.signin.dao.SigninDao;
@@ -48,6 +41,7 @@ import edu.helpdesk.signin.model.nto.SigninUser;
 import edu.helpdesk.signin.services.EventLogger;
 import edu.helpdesk.signin.services.TimecardFactory;
 import edu.helpdesk.signin.util.AuthenticationUtil;
+import edu.helpdesk.signin.util.SigninUtil;
 import edu.helpdesk.signin.web.util.Description;
 import edu.helpdesk.signin.web.util.PathConstants;
 import edu.helpdesk.signin.web.util.WebTask;
@@ -636,44 +630,7 @@ public class AdminPageResource {
 	}
 
 	private Map<String, String> fingerInternal(String netid) throws Exception{
-		final Set<String> KEYS = new HashSet<String>(){
-			private static final long serialVersionUID = -801483559828938609L;
-			{
-				add("name");
-				add("class");
-				add("matric term");
-				add("college");
-				add("major");
-				add("address");
-				add("mailto");
-			}
-		};
-
-		FingerClient finger = new FingerClient();
-		try{
-			Preconditions.checkArgument(!Strings.isNullOrEmpty(netid), "netid cannot be null or empty");
-			finger.connect("rice.edu");
-			String infoRaw = finger.query(false, netid);
-			String[] info = infoRaw.split("\n");
-			Map<String, String> out = new HashMap<>();
-
-			for(String line : info){
-				String[] split = line.split(":", 2);
-				if(split.length == 2){
-					String key = split[0].trim().toLowerCase();
-					String val = split[1].trim();
-					if(KEYS.contains(key)){
-						out.put(key, val);
-					}
-				}
-			}
-
-			return out;
-		}finally{
-			try{
-				finger.disconnect();
-			}catch(Exception ignore){}
-		}
+		return SigninUtil.get().finger(netid);
 	}
 
 }
