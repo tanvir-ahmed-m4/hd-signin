@@ -3,8 +3,8 @@ var processError = function(response){
 	var msg = '';
 
 	var payload = getPayload(response);
-	if(payload.data){
-		msg = payload.data;
+	if(payload.error){
+		msg = payload.error;
 	}else{
 		msg = response.statusText;
 	}

@@ -1,5 +1,6 @@
 angular.module('admin').controller('AdminHomeCtrl', ['$scope', 'miscServices', 'correctionRequestServices', 'TimeUtils','employeeServices',  function($scope, miscServices, correctionRequestServices, TimeUtils, employeeServices){
 	$scope.user = null;
+	
 	$scope.corrections = [];
 	$scope.signedInEmployees = [];
 	
@@ -19,7 +20,6 @@ angular.module('admin').controller('AdminHomeCtrl', ['$scope', 'miscServices', '
 	
 	$scope.cancelRequest = function(request){
 		correctionRequestServices.cancelCorrectionRequest(request.id);
-		console.log("weee");
 	}
 	
 	$scope.formatDate = function(time){
@@ -36,6 +36,11 @@ angular.module('admin').controller('AdminHomeCtrl', ['$scope', 'miscServices', '
 	
 	$scope.resolveCorrectionRequest = function(request, approved){
 		correctionRequestServices.resolveCorrectionRequest(request.id, approved).then(function(response){
+			if(response.error){
+				//TODO something better than an "alert"
+				alert('Error updating correction request: ' + response.error);
+				return;
+			}
 			removeRequest(request);
 		});
 	}
@@ -54,7 +59,14 @@ angular.module('admin').controller('AdminHomeCtrl', ['$scope', 'miscServices', '
 		for(var i = 0; i < $scope.corrections.length; i++){
 			if($scope.corrections[i].id == request.id){
 				$scope.corrections.splice(i, 1);
-				return;
+				break;
+			}
+		}
+		
+		for(var i = 0; i < $scope.myCorrections.length; i++){
+			if($scope.myCorrections[i].id == request.id){
+				$scope.myCorrections.splice(i, 1);
+				break;
 			}
 		}
 	}

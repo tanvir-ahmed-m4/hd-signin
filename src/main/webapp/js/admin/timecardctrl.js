@@ -63,6 +63,12 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 		};
 		
 		correctionRequestServices.createCorrectionRequest(request).then(function(response){
+			if(response.error){
+				//TODO something better than an alert
+				alert('Error submitting correction request: ' + response.error);
+				return;
+			}
+			
 			$scope.editedRow = -1;
 			addCorrectionRequest(response);
 		});
