@@ -37,7 +37,7 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	}
 	
 	$scope.formatTime = function(time){
-		return TimeUtils.formatTime(time);
+		return TimeUtils.formatTime(time, true);
 	}
 	
 	$scope.getEditMsg = function(){

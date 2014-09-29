@@ -10,26 +10,7 @@ angular.module('admin').controller('AdminNavCtrl', ['$scope', '$location', 'misc
 	}
 	
 	$scope.hasLevel = function(level){
-		if(level == 'NONE'){
-			return true;
-		}
-		
-		if($scope.user == null){
-			return false;
-		}
-		
-		var userLevel = $scope.user.employeeType;
-		
-		if(userLevel == level){
-			return true;
-		}
-		
-		switch(level){
-		case 'SCC':        return userLevel == 'SCC_LEAD' || userLevel == 'SUPERVISOR' || userLevel == 'SYSADMIN';
-		case 'SCC_LEAD':   return userLevel == 'SUPERVISOR' || userLevel == 'SYSADMIN';
-		case 'SUPERVISOR': return  userLevel == 'SYSADMIN';
-		default:           return false;
-		}
+		return miscServices.hasLevel($scope.user, level);
 	}
 	
 	

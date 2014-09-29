@@ -315,6 +315,41 @@ public class AdminPageResource {
 		});
 	}
 
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_PATH + "/correction/own")
+	@Description("ALlows a user to get their own correction requests")
+	public Response getOwnCorrectionRequests(@Context final HttpServletRequest ajaxRequest, @QueryParam(GET_RESOLVED) final String includeResolvedStr){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+			@Override
+			public Response doTask() {
+				boolean includeResolved = parseBool(includeResolvedStr, false);
+				Employee e = utils.getAuthenticatedUser(ajaxRequest);
+
+				Preconditions.checkArgument(e != null, "Signed in user is not an employee");
+
+				List<CorrectionRequest> requests;
+				
+				
+				if(includeResolved){
+					requests = signinDao.getAllCorrectionRequests();
+				}
+				else{
+					requests = signinDao.getAllPendingCorrectionRequests();
+				}
+				
+				List<CorrectionRequest> out = new ArrayList<>();
+				for(CorrectionRequest cr : requests){
+					if(cr.getSubmitter().getId() == e.getId()){
+						out.add(cr);
+					}
+				}
+
+				return Response.ok(out).build();
+			}
+		});
+	}
+
 
 
 	////////////////////////////////////////////////////////////////////////////

@@ -131,9 +131,6 @@ angular.module('admin').controller('EmployeeMgmtCtrl', ['$scope', 'employeeServi
 		$scope.activeEmployee = $scope.employees[0];
 	});
 
-
-
-
 	refreshNewEmployee();
 
 }]);

@@ -1,5 +1,5 @@
 var processError = function(response){
-	console.log('Got error: ' + JSON.stringify(response));
+	console.log('Got error from AJAX request: ' + JSON.stringify(response));
 	var msg = '';
 
 	var payload = getPayload(response);
@@ -20,7 +20,31 @@ angular.module('admin').factory('miscServices', ['$http', function($http){
 		finger: finger,
 		toggleSignin: toggleSignin,
 		getSignedInEmployees: getSignedInEmployees,
-		getSignedInUser: getSignedInUser
+		getSignedInUser: getSignedInUser,
+		hasLevel: hasLevel
+	}
+	
+	function hasLevel(user, level){
+		if(level == 'NONE'){
+			return true;
+		}
+		
+		if(user == null){
+			return false;
+		}
+		
+		var userLevel = user.employeeType;
+		
+		if(userLevel == level){
+			return true;
+		}
+		
+		switch(level){
+		case 'SCC':        return userLevel == 'SCC_LEAD' || userLevel == 'SUPERVISOR' || userLevel == 'SYSADMIN';
+		case 'SCC_LEAD':   return userLevel == 'SUPERVISOR' || userLevel == 'SYSADMIN';
+		case 'SUPERVISOR': return  userLevel == 'SYSADMIN';
+		default:           return false;
+		}
 	}
 
 	function finger(netid){
@@ -157,9 +181,35 @@ angular.module('admin').factory('correctionRequestServices', ['$http', function(
 		resolveCorrectionRequest: resolveCorrectionRequest,
 		createCorrectionRequest: createCorrectionRequest,
 		getCorrectionRequestsForEmployee: getCorrectionRequestsForEmployee,
-		getPendingCorrectionRequests: getPendingCorrectionRequests
+		getPendingCorrectionRequests: getPendingCorrectionRequests,
+		getOwnCorrectionRequests: getOwnCorrectionRequests,
+		cancelCorrectionRequest: cancelCorrectionRequest
 	}
-
+	
+	function cancelCorrectionRequest(id){
+		return $http({
+			method: 'POST',
+			url: '/signin/rest/admin/scc/correction/' + id + '/cancel',
+		}).then(getPayload, processError);
+		
+	}
+	
+	function getOwnCorrectionRequests(includeResolved){
+		if (typeof includeResolved == 'undefined'){
+			includeResolved = false;
+		}
+		
+		return $http({
+			method: 'GET',
+			url: '/signin/rest/admin/scc/correction/own',
+			params: {
+				'includeResolved': includeResolved
+			}
+		}).then(getPayload, processError);
+		
+	}
+	
+	
 	function resolveCorrectionRequest(id, approved){
 		var end = '';
 		if(approved === true){
@@ -283,9 +333,23 @@ angular.module('admin').factory('TimeUtils', [function(){
 		return str + 's';
 	}
 
-	function formatTime(time){
+	function formatTime(time, useShortVals){
 		if(time == 0){
 			return '0';
+		}
+		
+		if(typeof useShortVals == 'undefined'){
+			useShortVals = false;
+		}
+		
+		var hoursStr = 'hour';
+		var minutesStr = 'minute';
+		var secondsStr = 'second';
+		
+		if(useShortVals){
+			hoursStr = 'hour';
+			minutesStr = 'min';
+			secondsStr = 'sec';
 		}
 		
 		// calculate values
@@ -299,7 +363,7 @@ angular.module('admin').factory('TimeUtils', [function(){
 		var out = '';
 		var includeComma = false;
 		if(hours != 0){
-			out += hours + ' hour';
+			out += hours + ' ' + hoursStr;
 			out = appendsIfPlural(out, hours);
 
 			includeComma = true;
@@ -309,7 +373,7 @@ angular.module('admin').factory('TimeUtils', [function(){
 				out += ', ';
 			}
 
-			out += minutes + ' minute';
+			out += minutes + ' ' + minutesStr;
 			out = appendsIfPlural(out, minutes);
 
 			includeComma = true;
@@ -320,7 +384,7 @@ angular.module('admin').factory('TimeUtils', [function(){
 				if(includeComma){
 					out += ', ';
 				}
-				out += seconds + ' second';
+				out += seconds + ' ' + secondsStr;
 				out = appendsIfPlural(out, seconds);
 			}
 		}

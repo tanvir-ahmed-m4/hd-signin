@@ -3,6 +3,7 @@ angular.module('admin').controller('AdminHomeCtrl', ['$scope', 'miscServices', '
 	$scope.corrections = [];
 	$scope.signedInEmployees = [];
 	
+	$scope.myCorrections = [];
 	
 	miscServices.getSignedInUser().then(function(response){
 		$scope.user = response;
@@ -11,6 +12,15 @@ angular.module('admin').controller('AdminHomeCtrl', ['$scope', 'miscServices', '
 	correctionRequestServices.getPendingCorrectionRequests().then(function(response){
 		$scope.corrections = response;
 	});
+	
+	correctionRequestServices.getOwnCorrectionRequests().then(function(response){
+		$scope.myCorrections = response;
+	});
+	
+	$scope.cancelRequest = function(request){
+		correctionRequestServices.cancelCorrectionRequest(request.id);
+		console.log("weee");
+	}
 	
 	$scope.formatDate = function(time){
 		return new Date(time).toLocaleString();
