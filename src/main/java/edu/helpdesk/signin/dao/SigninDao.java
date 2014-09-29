@@ -69,6 +69,7 @@ public class SigninDao {
 		checkStatus(request, PENDING);
 		try{
 			mapper.applyCorrectionRequest(request);
+			return;
 		}catch(UncategorizedSQLException ex){
 			handleSqlException(ex.getSQLException());
 		}catch(SQLException e){

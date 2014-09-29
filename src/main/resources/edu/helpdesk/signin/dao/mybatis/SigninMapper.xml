@@ -81,14 +81,19 @@
 				SigninDataId FROM SigninData WHERE
 					(EmployeeId = eid)
 					AND
-					((SigninTime &lt; newSessionStart AND newSessionStart &lt; SignoutTime) 
+					(
+					(newSessionStart &lt; SigninTime AND SigninTime &lt; newSessionEnd) 
 					OR 
-					(SigninTime &lt; newSessionEnd AND newSessionEnd &lt; SignoutTime)); 
+					(newSessionStart &lt; SignoutTime AND SignoutTime &lt; newSessionEnd)
+					OR
+					(SigninTime &lt; newSessionStart AND newSessionStart &lt; SignoutTime ) 
+					OR 
+					(SigninTime &lt; newSessionEnd AND newSessionEnd &lt; SignoutTime)
+					); 
 			IF (SELECT COUNT(*) FROM overlappingSessions) > 0 THEN
 				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Session overlaps existing session data', MYSQL_ERRNO = 3141;
 			END IF;
-			SET @out = 0;
-			RETURN @out;
+			RETURN 0;
 		END;
 	SET @temp = checkOverlap(@eid, @newSessionStart, @newSessionEnd);
 	</sql>
@@ -117,11 +122,6 @@
 		SET @eid = #{e.id};
 		SET @date = #{date};
 		
-		<!-- Make sure the session is valid -->
-		SET @newSessionStart = @date;
-		SET @newSessionEnd = @date;
-		<include refid="ensureSessionsDontOverlap" />
-		
 		DROP FUNCTION IF EXISTS doSwipe;
 		CREATE FUNCTION doSwipe(rowId INT, eid INT, swipedTime TIMESTAMP)
 			RETURNS INT
@@ -143,7 +143,12 @@
 				RETURN @out;
 			END;
 
-		SET @row = (SELECT SigninDataId FROM SigninData WHERE EmployeeId = @eid AND SignoutTime = 0);
+		SELECT SigninDataId, IF(SigninTime = 0, @date, SigninTime) INTO @row, @newSessionStart FROM SigninData WHERE EmployeeId = @eid AND SignoutTime = 0;
+		
+		<!-- Make sure the session is valid -->
+		SET @newSessionStart = IF(@newSessionStart = NULL, @date, @newSessionStart);
+		SET @newSessionEnd = @date;
+		<include refid="ensureSessionsDontOverlap" />
 		
 		SET @row = doSwipe(@row, @eid, @date);
 		
@@ -168,6 +173,12 @@
 		SET @OldTimeIn = (SELECT SigninTime FROM SigninData WHERE SigninDataId = @SigninId);
 		SET @OldTimeOut = (SELECT SignoutTime FROM SigninData WHERE SigninDataId = @SigninId);
 		
+		SET @eid = #{c.submitter.id};
+		SET @newSessionStart = #{c.newSigninTime};
+		SET @newSessionEnd = #{c.newSignoutTime};
+		<include refid="ensureSessionsDontOverlap" />
+		
+		
 		INSERT INTO CorrectionRequest 
 			(CorrectionRequestStatusId, 
 			SigninDataId, 
@@ -179,9 +190,9 @@
 		VALUES
 			(@newStatus,
 			@SigninId,
-			#{c.submitter.id},
-			#{c.newSigninTime},
-			#{c.newSignoutTime},
+			@eid,
+			@newSessionStart,
+			@newSessionEnd,
 			@OldTimeIn,
 			@OldTimeOut);
 		SELECT LAST_INSERT_ID() AS Id;
