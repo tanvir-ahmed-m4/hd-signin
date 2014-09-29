@@ -1,11 +1,15 @@
 package edu.helpdesk.signin.dao;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.UncategorizedSQLException;
 
 import com.google.common.base.Preconditions;
 
@@ -18,6 +22,8 @@ import edu.helpdesk.signin.model.dto.WorkSession;
 import static edu.helpdesk.signin.model.CorrectionRequestStatus.*;
 
 public class SigninDao {
+	private static final Logger log = LoggerFactory.getLogger(SigninDao.class);
+
 
 	@Autowired
 	private SigninMapper mapper;
@@ -25,25 +31,50 @@ public class SigninDao {
 	@Autowired
 	private EmployeeDao edao;
 
+	public SigninDao() {
+		log.debug("Signin dao created");
+	}
+
 	public List<Employee> getAllSignedInEmployees(){
 		return mapper.getAllSignedInEmployees();
 	}
 
 	public WorkSession doToggleSigninStatus(Employee e){
-		return mapper.doSwipe(e, new Date());
+		try{
+			return mapper.doSwipe(e, new Date());
+		}catch(UncategorizedSQLException ex){
+			handleSqlException(ex.getSQLException());
+		}catch(SQLException ex){
+			handleSqlException(ex);
+		}
+		throw new IllegalStateException("This should never be reached");
 	}
 
 	public Integer createCorrectionRequest(CorrectionRequest request){
 		request.setCompleter(null);
 		validateCorrectionRequest(request, false, false);
 		checkStatus(request, PENDING);
-		return mapper.createRequest(request);
+		try{
+			return mapper.createRequest(request);
+		}catch(UncategorizedSQLException ex){
+			handleSqlException(ex.getSQLException());
+		}catch(SQLException e){
+			handleSqlException(e);
+		}
+		throw new IllegalStateException("This should never be reached");
 	}
 
 	public void applyCorrectionRequest(CorrectionRequest request){
 		validateCorrectionRequest(request, true, true);
 		checkStatus(request, PENDING);
-		mapper.applyCorrectionRequest(request);
+		try{
+			mapper.applyCorrectionRequest(request);
+		}catch(UncategorizedSQLException ex){
+			handleSqlException(ex.getSQLException());
+		}catch(SQLException e){
+			handleSqlException(e);
+		}
+		throw new IllegalStateException("This should never be reached");
 	}
 
 	public void rejectCorrectionRequest(CorrectionRequest request){
@@ -138,6 +169,15 @@ public class SigninDao {
 	public WorkSession getWorkSession(Integer id) {
 		validateId(id);
 		return mapper.getWorkSession(id);
+	}
+
+	private void handleSqlException(SQLException e){
+		if(e.getErrorCode() == 3141){
+			throw new IllegalArgumentException("Cannot add session data, it "
+					+ "would cause an overlap with an existing session", e);
+		}
+		throw new RuntimeException(e);
+
 	}
 
 }

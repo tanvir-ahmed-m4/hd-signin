@@ -64,6 +64,36 @@
 		LEFT JOIN SigninType AS st ON st.SigninTypeId = sd.SigninTypeId
 	</sql>
 	
+	<sql id="ensureSessionsDontOverlap">
+	<!-- Required Variables                                   -->
+	<!-- @eid             - employee id                       -->
+	<!-- @newSessionStart - The start time of the new session -->
+	<!-- @newSessionEnd   - The end time of the new session   -->
+	<!--    [new signin time] -->
+	<!--      [existing signin time] -->
+	<!--  [existing signin time] -->
+	
+	DROP FUNCTION IF EXISTS checkOverlap;
+	CREATE FUNCTION checkOverlap(eid INT, newSessionStart TIMESTAMP, newSessionEnd TIMESTAMP) RETURNS INT
+		BEGIN
+			CREATE TEMPORARY TABLE overlappingSessions (SessionId INT) ENGINE=MEMORY; 
+			INSERT INTO overlappingSessions (SessionId) SELECT
+				SigninDataId FROM SigninData WHERE
+					(EmployeeId = eid)
+					AND
+					((SigninTime &lt; newSessionStart AND newSessionStart &lt; SignoutTime) 
+					OR 
+					(SigninTime &lt; newSessionEnd AND newSessionEnd &lt; SignoutTime)); 
+			IF (SELECT COUNT(*) FROM overlappingSessions) > 0 THEN
+				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Session overlaps existing session data', MYSQL_ERRNO = 3141;
+			END IF;
+			SET @out = 0;
+			RETURN @out;
+		END;
+	SET @temp = checkOverlap(@eid, @newSessionStart, @newSessionEnd);
+	</sql>
+	
+	
 	<select id="getAllWorkSessionsForEmployee" resultMap="WorkSessionMapper">
 		<!-- List<WorkSession> getAllWorkSessionsForEmployee(@Param("id") Integer id, @Param("after") Date sessionStartsAfter, @Param("before") Date sessionStartsBefore); -->
 		SET @EmployeeId = #{id};
@@ -86,6 +116,11 @@
 		<!-- WorkSession doSwipe(@Param("e") Employee e, @Param("date") Date time); -->
 		SET @eid = #{e.id};
 		SET @date = #{date};
+		
+		<!-- Make sure the session is valid -->
+		SET @newSessionStart = @date;
+		SET @newSessionEnd = @date;
+		<include refid="ensureSessionsDontOverlap" />
 		
 		DROP FUNCTION IF EXISTS doSwipe;
 		CREATE FUNCTION doSwipe(rowId INT, eid INT, swipedTime TIMESTAMP)
@@ -154,15 +189,25 @@
 
 	<update id="applyCorrectionRequest">
 		<!-- void applyCorrectionRequest(@Param("c") CorrectionRequest c); -->
-		SET @newStatus = (SELECT CorrectionRequestStatusId FROM CorrectionRequestStatus WHERE CorrectionRequestStatusName = 'APPROVED' LIMIT 1);
-		SET @type = (SELECT SigninTypeId FROM SigninType WHERE SigninType = 'CORRECTION' LIMIT 1);
+		SET @signinId = #{c.signinId};
+		SET @correctionRequestId = #{c.id};
+		SET @eid = #{c.submitter.id};
+		
+		SELECT NewSigninTime, NewSignoutTime INTO @newSessionStart, @newSessionEnd FROM  CorrectionRequest WHERE CorrectionRequestId = @correctionRequestId;
+		SELECT CorrectionRequestStatusId INTO @newStatus FROM CorrectionRequestStatus WHERE CorrectionRequestStatusName = 'APPROVED' LIMIT 1;
+		SELECT SigninTypeId INTO @type FROM SigninType WHERE SigninType = 'CORRECTION' LIMIT 1;
+		
+		
+		<!-- Make sure we can actually apply the request -->
+		<include refid="ensureSessionsDontOverlap" />
+		
 		<!-- Update the timecard entry -->
 		UPDATE SigninData SET
-			SigninTime = #{c.newSigninTime},
-			SignoutTime = #{c.newSignoutTime},
+			SigninTime = @newSessionStart,
+			SignoutTime = @newSessionEnd,
 			SigninTypeId = @type
 		WHERE
-			SigninDataId = #{c.signinId};
+			SigninDataId = @signinId;
 		
 		<!-- Update the request -->
 		UPDATE CorrectionRequest 
@@ -170,7 +215,7 @@
 			CorrectionRequestStatusId = @newStatus,
 			CompleterEmployeeId = #{c.completer.id}
 		WHERE
-			CorrectionRequestId = #{c.id};
+			CorrectionRequestId = @correctionRequestId;
 			
 	</update>
 
