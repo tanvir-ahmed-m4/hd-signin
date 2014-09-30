@@ -74,12 +74,12 @@
 	<!--  [existing signin time] -->
 	
 	DROP FUNCTION IF EXISTS checkOverlap;
-	CREATE FUNCTION checkOverlap(eid INT, newSessionStart TIMESTAMP, newSessionEnd TIMESTAMP) RETURNS INT
+	CREATE FUNCTION checkOverlap(rowId INT, eid INT, newSessionStart TIMESTAMP, newSessionEnd TIMESTAMP) RETURNS INT
 		BEGIN
 			CREATE TEMPORARY TABLE overlappingSessions (SessionId INT) ENGINE=MEMORY; 
 			INSERT INTO overlappingSessions (SessionId) SELECT
 				SigninDataId FROM SigninData WHERE
-					(EmployeeId = eid)
+					(EmployeeId = eid AND SigninDataId != rowId)
 					AND
 					(
 					(newSessionStart &lt; SigninTime AND SigninTime &lt; newSessionEnd) 
@@ -95,7 +95,7 @@
 			END IF;
 			RETURN 0;
 		END;
-	SET @temp = checkOverlap(@eid, @newSessionStart, @newSessionEnd);
+	SET @temp = checkOverlap(@rowId, @eid, @newSessionStart, @newSessionEnd);
 	</sql>
 	
 	
@@ -148,6 +148,7 @@
 		<!-- Make sure the session is valid -->
 		SET @newSessionStart = IF(@newSessionStart = NULL, @date, @newSessionStart);
 		SET @newSessionEnd = @date;
+		SET @rowId = @row;
 		<include refid="ensureSessionsDontOverlap" />
 		
 		SET @row = doSwipe(@row, @eid, @date);
@@ -173,6 +174,7 @@
 		SET @OldTimeIn = (SELECT SigninTime FROM SigninData WHERE SigninDataId = @SigninId);
 		SET @OldTimeOut = (SELECT SignoutTime FROM SigninData WHERE SigninDataId = @SigninId);
 		
+		SET @rowId = @SigninId;
 		SET @eid = #{c.submitter.id};
 		SET @newSessionStart = #{c.newSigninTime};
 		SET @newSessionEnd = #{c.newSignoutTime};
@@ -204,6 +206,7 @@
 		SET @correctionRequestId = #{c.id};
 		SET @eid = #{c.submitter.id};
 		
+		SET @rowId = @signinId;
 		SELECT NewSigninTime, NewSignoutTime INTO @newSessionStart, @newSessionEnd FROM  CorrectionRequest WHERE CorrectionRequestId = @correctionRequestId;
 		SELECT CorrectionRequestStatusId INTO @newStatus FROM CorrectionRequestStatus WHERE CorrectionRequestStatusName = 'APPROVED' LIMIT 1;
 		SELECT SigninTypeId INTO @type FROM SigninType WHERE SigninType = 'CORRECTION' LIMIT 1;
