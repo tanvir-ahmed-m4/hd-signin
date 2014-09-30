@@ -1,7 +1,17 @@
 var processError = function(response){
 	console.log('Got error from AJAX request: ' + JSON.stringify(response));
 	var msg = '';
-
+	
+	if(response.status == 401){
+		if(response.data){
+			if(response.data.error){
+				if(response.data.error == 'No employee signed in'){
+					alert('Authentication expired, please refresh the page');
+				}
+			}
+		}
+	}
+	
 	var payload = getPayload(response);
 	if(payload.error){
 		msg = payload.error;
