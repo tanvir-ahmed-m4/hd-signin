@@ -38,6 +38,15 @@
 	</bean>
 	
 	
+	<bean id="eventLoggerDao" class="edu.helpdesk.signin.dao.EventLoggerDao" />
+	<bean id="eventLoggerMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="edu.helpdesk.signin.dao.mybatis.EventLogMapper" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+	
+	
+	
+	
 	
 	
 

@@ -12,4 +12,6 @@
 	<bean id="timecardFactory" class="edu.helpdesk.signin.services.TimecardFactory" />
 	
 	<bean id="snarkFactory" class="edu.helpdesk.signin.services.SnarkFactory" />
+	
+	<bean id="loggerService" class="edu.helpdesk.signin.services.EventLogger" />
 </beans>

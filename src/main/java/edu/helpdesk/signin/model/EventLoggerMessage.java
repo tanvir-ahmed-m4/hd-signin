@@ -3,6 +3,7 @@ package edu.helpdesk.signin.model;
 import java.util.Date;
 
 public class EventLoggerMessage {
+	private Integer id;
 	private Date time;
 	private String message;
 	
@@ -28,6 +29,14 @@ public class EventLoggerMessage {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 	
 

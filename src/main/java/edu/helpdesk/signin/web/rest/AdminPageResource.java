@@ -58,6 +58,9 @@ public class AdminPageResource {
 
 
 	@Autowired
+	private EventLogger logger;
+	
+	@Autowired
 	private WebUtils utils;
 
 	@Autowired
@@ -148,12 +151,19 @@ public class AdminPageResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/log")
 	@Description("Gets event log")
-	public Response getEventLog(){
+	public Response getEventLog(@QueryParam("page") final String pageStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
 			@Override
 			public Response doTask() throws Exception {
-				return Response.ok(EventLogger.get().getLog()).build();
+				int page;
+				if(pageStr != null){
+					page = parseInt(pageStr);
+				}
+				else{
+					page = 0;
+				}
+				return Response.ok(logger.getLog(page)).build();
 			}
 
 		});
@@ -240,7 +250,12 @@ public class AdminPageResource {
 			@Override
 			public Response doTask() {
 				request.setStatus(CorrectionRequestStatus.PENDING);
-				return Response.ok(signinDao.getCorrectionRequest(signinDao.createCorrectionRequest(request))).build();
+				CorrectionRequest out = signinDao.getCorrectionRequest(signinDao.createCorrectionRequest(request));
+				
+				logger.logEvent("%s submitted a correction request with id %d",
+						buildFullName(request.getSubmitter()), out.getId());
+				
+				return Response.ok(out).build();
 			}
 		});
 	}
@@ -264,8 +279,12 @@ public class AdminPageResource {
 
 				request.setCompleter(e);
 				signinDao.applyCorrectionRequest(request);
-
-				return Response.ok(signinDao.getCorrectionRequest(request.getId())).build();
+				CorrectionRequest out = signinDao.getCorrectionRequest(request.getId());
+				
+				logger.logEvent("%s approved correction request %d for %s",
+						buildFullName(out.getCompleter()), out.getId(), buildFullName(out.getSubmitter()));
+				
+				return Response.ok(out).build();
 			}
 		});
 	}
@@ -287,7 +306,11 @@ public class AdminPageResource {
 				request.setCompleter(e);
 				signinDao.rejectCorrectionRequest(request);
 
-				return Response.ok(signinDao.getCorrectionRequest(request.getId())).build();
+				CorrectionRequest out = signinDao.getCorrectionRequest(request.getId());
+				logger.logEvent("%s denied correction request %d for %s",
+						buildFullName(out.getCompleter()), out.getId(), buildFullName(out.getSubmitter()));
+				
+				return Response.ok(out).build();
 			}
 		});
 	}
@@ -309,8 +332,12 @@ public class AdminPageResource {
 
 				request.setCompleter(e);
 				signinDao.rejectCorrectionRequest(request);
-
-				return Response.ok(signinDao.getCorrectionRequest(request.getId())).build();
+				
+				CorrectionRequest out = signinDao.getCorrectionRequest(request.getId());
+				
+				logger.logEvent("%s cancelled correction request %d", buildFullName(out.getSubmitter()), out.getId());
+				
+				return Response.ok(out).build();
 			}
 		});
 	}
@@ -427,13 +454,19 @@ public class AdminPageResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee")
 	@Description("Create a new employee, using the given data")
-	public Response createEmployee(final Employee e){
+	public Response createEmployee(@Context final HttpServletRequest request, final Employee e){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 
 			@Override
 			public Response doTask() {
 				Integer id = employeeDao.createEmployee(e);
-				return Response.ok(employeeDao.getEmployee(id)).build();
+				Employee out = employeeDao.getEmployee(id);
+				
+				logger.logEvent("A new employee named %s was created by %s", 
+						buildFullName(out), 
+						buildFullName(WebUtils.get().getAuthenticatedUser(request)));
+				
+				return Response.ok(out).build();
 			}
 		});
 	}
@@ -457,20 +490,25 @@ public class AdminPageResource {
 				}
 
 				employeeDao.updateEmployee(e);
-				return Response.ok(employeeDao.getEmployee(e.getId())).build();
+				Employee out = employeeDao.getEmployee(e.getId());
+				
+				logger.logEvent("%s updated the information for %s", buildFullName(signedIn), buildFullName(out));
+				
+				return Response.ok(out).build();
 			}
 		});
 	}
 
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee")
+	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/employee")
 	@Description("Delete an employee with the given ID")
 	public Response deleteEmployee(final Integer id){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
 			@Override
 			public Response doTask() {
 				employeeDao.deleteEmployee(id);
+				logger.logEvent("Employee with ID %d deleted", id);
 				return Response.ok().build();
 			}
 		});
@@ -625,6 +663,10 @@ public class AdminPageResource {
 	//////////////////    Internal helper functions    /////////////////////////
 	////////////////////////////////////////////////////////////////////////////
 
+	private String buildFullName(Employee e){
+		return e == null ? "" : String.format("%s %s (id %d)", e.getFirstName(), e.getLastName(), e.getId());
+	}
+	
 	private List<CorrectionRequest> getCorrectionRequestsInternal(boolean includeResolved){
 		List<CorrectionRequest> out;
 

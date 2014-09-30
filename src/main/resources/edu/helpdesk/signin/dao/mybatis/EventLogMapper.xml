@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.helpdesk.signin.dao.mybatis.EventLogMapper">
+
+	<resultMap id="EventLogMapper" type="edu.helpdesk.signin.model.EventLoggerMessage">
+		<id     property="id"              column="EventLogId" />
+		<result property="message" column="EventLogMessage" />
+		<result property="time"    column="EventLogDate" />
+	</resultMap>
+	
+	<select id="getOneHundredMessages" resultMap="EventLogMapper">
+		SET @page = #{page};
+		SET @pageSize = 100;
+		SET @minId = @page * @pageSize;
+		SET @maxId = (@page + 1) * @pageSize;
+		
+		SELECT
+			EventLogId,
+			EventLogMessage,
+			EventLogDate
+		FROM EventLog
+		WHERE @minId  &lt;= EventLogId AND EventLogId &lt; @maxId; 
+	</select>
+
+	<insert id="logMessage">
+		INSERT INTO EventLog 
+			(EventLogMessage, EventLogDate)
+		VALUES
+			(#{msg.message}, #{msg.time})
+	</insert>
+
+</mapper>

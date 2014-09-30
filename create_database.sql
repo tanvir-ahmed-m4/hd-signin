@@ -6,11 +6,18 @@ DROP TABLE IF EXISTS `SigninType`;
 DROP TABLE IF EXISTS `EmployeeType`;
 DROP TABLE IF EXISTS `CorrectionRequestStatus`;
 
-
-
 DROP TABLE IF EXISTS `PeriodEnd`;
 
+DROP TABLE IF EXISTS `EventLog`;
+
 -- End of drop tables, begin of create tables
+
+CREATE TABLE `EventLog` (
+	EventLogId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	EventLogDate TIMESTAMP NOT NULL,
+	EventLogMessage VARCHAR(8196) NOT NULL
+) CHARSET = UTF8, ENGINE = InnoDB;
+
 
 CREATE TABLE `PeriodEnd` (
 	PeriodEndId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

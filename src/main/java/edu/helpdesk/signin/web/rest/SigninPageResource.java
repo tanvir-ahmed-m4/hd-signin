@@ -46,6 +46,9 @@ public class SigninPageResource {
 	@Autowired
 	private SigninDao signinDao;
 
+	@Autowired
+	private EventLogger logger;
+	
 	//////////////////////////////////////////////////////////////////////////
 	/////////////////////////    Constructor    //////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
@@ -94,7 +97,7 @@ public class SigninPageResource {
 			WorkSession result = this.signinDao.doToggleSigninStatus(e);
 			boolean swipedIn = result.getSignoutTime() == null ? true : false;
 			
-			EventLogger.get().logEvent("Employee with rice id '%s' swiped %s", e.getRiceId(), swipedIn ? "in" : "out");
+			logger.logEvent("%s %s swiped %s", e.getFirstName(), e.getLastName(), swipedIn ? "in" : "out");
 			
 			if(swipedIn){
 				return new SigninResultSwipedINto(e.getFirstName() + " " + e.getLastName());
