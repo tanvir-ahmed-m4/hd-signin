@@ -2,6 +2,7 @@ var processError = function(response){
 	console.log('Got error from AJAX request: ' + JSON.stringify(response));
 	var msg = '';
 	
+	// handle a special case of failure
 	if(response.status == 401){
 		if(response.data){
 			if(response.data.error){
@@ -139,7 +140,7 @@ angular.module('admin').factory('employeeServices', ['$http', function($http){
 	}
 
 	function deleteEmployee(id){
-
+		console.log('delete employee is not implemented');
 	}
 
 	function getAllEmployees(filterInactive){
@@ -161,14 +162,14 @@ angular.module('admin').factory('employeeServices', ['$http', function($http){
 angular.module('admin').factory('timecardServices', ['$http', function($http){
 
 	return {
-		getCurrentTimecardForCurrentEmployee: getCurrentTimecardForCurrentEmployee,
+		getOwnTimecard: getOwnTimecard,
 		getTimecard: getTimecard
 	}
 
 	function getTimecard(employeeId, startDate, endDate){
 		return $http({
 			method: 'GET',
-			url: '/signin/rest/admin/scc/employee/' + employeeId + '/timecard',
+			url: '/signin/rest/admin/scclead/employee/' + employeeId + '/timecard',
 			params: {
 				periodStart: startDate,
 				periodEnd: endDate
@@ -176,10 +177,14 @@ angular.module('admin').factory('timecardServices', ['$http', function($http){
 		}).then(getPayload, processError);
 	}
 	
-	function getCurrentTimecardForCurrentEmployee(id){
+	function getOwnTimecard(startDate, endDate){
 		return $http({
 			method: 'GET',
-			url: '/signin/rest/admin/scc/employee/' + id + '/timecard'
+			url: '/signin/rest/admin/scc/employee/timecard/own',
+			params: {
+				periodStart: startDate,
+				periodEnd: endDate
+			}
 		}).then(getPayload, processError);
 	}
 
@@ -212,11 +217,8 @@ angular.module('admin').factory('correctionRequestServices', ['$http', function(
 		return $http({
 			method: 'GET',
 			url: '/signin/rest/admin/scc/correction/own',
-			params: {
-				'includeResolved': includeResolved
-			}
+			params: {'includeResolved': includeResolved}
 		}).then(getPayload, processError);
-		
 	}
 	
 	
@@ -245,7 +247,7 @@ angular.module('admin').factory('correctionRequestServices', ['$http', function(
 	function getCorrectionRequestsForEmployee(employeeId){
 		return $http({
 			method: 'GET',
-			url: '/signin/rest/admin/scc/employee/' + employeeId + '/correction'
+			url: '/signin/rest/admin/supervisor/employee/' + employeeId + '/correction'
 		}).then(getPayload, processError);
 
 	}
@@ -322,10 +324,15 @@ angular.module('admin').factory('EventLogServices', ['$http', function($http){
 		getLog: getLog
 	}
 
-	function getLog(){
+	function getLog(page){
+		if(typeof page === 'undefined'){
+			page = 0;
+		}
+		
 		return $http({
 			method: 'GET',
 			url: '/signin/rest/admin/supervisor/log',
+			params: {'page': page}
 		}).then(getPayload, processError);
 	}
 	
@@ -400,6 +407,5 @@ angular.module('admin').factory('TimeUtils', [function(){
 		}
 		return out;
 	}
-
 }]);
 

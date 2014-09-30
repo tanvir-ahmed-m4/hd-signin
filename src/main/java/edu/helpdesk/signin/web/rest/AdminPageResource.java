@@ -205,7 +205,7 @@ public class AdminPageResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_PATH + "/employee/{id}/correction")
+	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/employee/{id}/correction")
 	@Description("Get all correction requests for an employee")
 	public Response createCorrectionRequest(@Context final HttpServletRequest request, @PathParam("id") final String idStr, @QueryParam(GET_RESOLVED) final String getResolvedStr){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
@@ -216,12 +216,7 @@ public class AdminPageResource {
 				int employeeId = parseInt(idStr);
 
 				Employee signedIn = utils.getAuthenticatedUser(request);
-
 				Preconditions.checkArgument(signedIn != null, "Signed in user is not an employee");
-
-				if(signedIn.getId() != employeeId){
-					AuthenticationUtil.get().verifyMinimumPermissionLevel(EmployeeType.SUPERVISOR, signedIn);
-				}
 
 				List<CorrectionRequest> allCorrections = getCorrectionRequestsInternal(includeResolved);
 				List<CorrectionRequest> out = new ArrayList<>();
@@ -521,7 +516,7 @@ public class AdminPageResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SCC_PATH + "/employee/{id}/timecard")
+	@Path(PathConstants.ADMIN_SCC_LEAD_PATH + "/employee/{id}/timecard")
 	@Description("Gets a timecard")
 	public Response getTimecard(@Context final HttpServletRequest request, @PathParam("id") final Integer id, @QueryParam(START_DATE) final String startDate, @QueryParam(END_DATE) final String endDate){
 		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
@@ -534,14 +529,6 @@ public class AdminPageResource {
 
 				Preconditions.checkArgument(e != null, "No employee with id '" + id + "' in database");
 				Preconditions.checkArgument(loggedIn != null, "No employee currently signed in");
-
-				// perform authentication checking
-				if(e.getId() == loggedIn.getId()){
-					AuthenticationUtil.get().verifyMinimumPermissionLevel(EmployeeType.SCC, loggedIn);
-				}
-				else{
-					AuthenticationUtil.get().verifyMinimumPermissionLevel(EmployeeType.SCC_LEAD, loggedIn);
-				}
 
 				// both null, use current period
 				if(startDate == null && endDate == null){
@@ -563,6 +550,39 @@ public class AdminPageResource {
 		});
 	}
 
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path(PathConstants.ADMIN_SCC_PATH + "/employee/timecard/own")
+	@Description("Gets a timecard for the currently signed in employee")
+	public Response getOwnTimecard(@Context final HttpServletRequest request, @QueryParam(START_DATE) final String startDate, @QueryParam(END_DATE) final String endDate){
+		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
+			@Override
+			public Response doTask() throws Exception{
+				PayPeriod period;
+
+				Employee loggedIn = WebUtils.get().getAuthenticatedUser(request);
+				Preconditions.checkArgument(loggedIn != null, "No employee currently signed in");
+
+				// both null, use current period
+				if(startDate == null && endDate == null){
+					period = payPeriodDao.getCurrentPayPeriod();
+				}
+				else if(startDate == null || endDate == null){
+					// one null, the other not. Not allowed
+					throw new IllegalArgumentException(String.format("%s and %s must either both be set, or both be blank", START_DATE, END_DATE));
+				}
+				else{
+					// both set, parse them
+					long start = parseLong(startDate);
+					long end = parseLong(endDate);
+					period = new PayPeriod(new Date(start), new Date(end));
+				}
+
+				return Response.ok(TimecardFactory.get().getTimecard(period, loggedIn)).build();
+			}
+		});
+	}
 
 	////////////////////////////////////////////////////////////////////////////
 	//////////////////    Pay period helper functions    ///////////////////////

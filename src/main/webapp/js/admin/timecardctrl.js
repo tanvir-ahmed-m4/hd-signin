@@ -178,17 +178,33 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 		var eid = $scope.employee.id;
 		var twoWeeks = 1000 * 60 * 60 * 24 * 14;
 		
-		$scope.periodStart = $scope.periodEnd - twoWeeks; 
-		timecardServices.getTimecard(eid, $scope.periodStart, $scope.periodEnd).then(function(response){
-			$scope.workSessions = response;
-			$scope.timecard = generateTimecard(response.workSessions, response.period.startOfPeriod, response.period.endOfPeriod);
-			updateDisplayedCorrectionRequests();
-		});
+		$scope.periodStart = $scope.periodEnd - twoWeeks;
 		
-		correctionRequestServices.getCorrectionRequestsForEmployee(eid).then(function(response){
-			$scope.corrections = response;
-			updateDisplayedCorrectionRequests();
-		});
+		// if we aren't an scc lead, we can only load ourselves
+		if(miscServices.hasLevel($scope.user, 'SCC_LEAD')){
+			timecardServices.getTimecard(eid, $scope.periodStart, $scope.periodEnd).then(function(response){
+				$scope.workSessions = response;
+				$scope.timecard = generateTimecard(response.workSessions, response.period.startOfPeriod, response.period.endOfPeriod);
+				updateDisplayedCorrectionRequests();
+			});
+			
+			correctionRequestServices.getCorrectionRequestsForEmployee(eid).then(function(response){
+				$scope.corrections = response;
+				updateDisplayedCorrectionRequests();
+			});
+		}
+		else{
+			timecardServices.getOwnTimecard($scope.periodStart, $scope.periodEnd).then(function(response){
+				$scope.workSessions = response;
+				$scope.timecard = generateTimecard(response.workSessions, response.period.startOfPeriod, response.period.endOfPeriod);
+				updateDisplayedCorrectionRequests();
+			});
+			
+			correctionRequestServices.getOwnCorrectionRequests().then(function(response){
+				$scope.corrections = response;
+				updateDisplayedCorrectionRequests();
+			});
+		}
 	}
 	
 	function generateTimecard(workSessions, startDate, endDate){
@@ -225,6 +241,11 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	 * Called when an ajax call that loads requisite data is completed
 	 */
 	function ajaxCallCompleted(){
+		
+		// we can't do anything until we know who we are
+		if($scope.user == null){
+			return;
+		}
 		
 		// update the employee if we haven't and we have the missing data
 		if($scope.employee == null){
