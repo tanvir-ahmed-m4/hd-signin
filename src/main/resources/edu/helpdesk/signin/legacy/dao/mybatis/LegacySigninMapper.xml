@@ -13,7 +13,7 @@
 	
 
 	<select id="getAllSigninData" resultMap="LegSigninData">
-		SELECT id, student_id, time_in, time_out, type FROM current_period
+		SELECT id, student_id, time_in, IF(time_out = 0, NULL, time_out) AS time_out, type FROM current_period
 	</select>
 
 
