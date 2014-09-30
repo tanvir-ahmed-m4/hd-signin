@@ -19,6 +19,11 @@ angular.module('admin').controller('ModCtrl', ['$scope', 'PayPeriodServices', 'E
 	});
 	
 	EventLogServices.getLog().then(function(response){
-		$scope.eventLog = response;
+		if(response.error){
+			console.log('Error gettting log: ' + response.error);
+			return;
+		}
+		
+		$scope.eventLog = response.reverse();
 	});
 }]);
