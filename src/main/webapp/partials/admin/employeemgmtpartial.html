@@ -1,13 +1,6 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-3">
-			<div class="panel panel-default">
-				<div class="panel-heading">Select Employee To Edit</div>
-				<div class="panel-body">
-					<select class="form-control" ng-model="activeEmployee" ng-options="getDisplayName(e) for e in employees track by e.id"></select>
-				</div>
-			</div>
-			
 			
 			<div class="panel panel-default">
 				<div class="panel-heading">Create New Employee</div>
@@ -64,14 +57,17 @@
 					</form>
 				</div>
 			</div>
-			
-			
-			
-			
-			
 		</div>
 
 		<div class="col-md-3">
+		
+			<div class="panel panel-default">
+				<div class="panel-heading">Select Employee To Edit</div>
+				<div class="panel-body">
+					<select class="form-control" ng-model="activeEmployee" ng-options="getDisplayName(e) for e in employees track by e.id"></select>
+				</div>
+			</div>
+		
 			<div class="panel panel-default">
 				<div class="panel-heading">Edit Employee</div>
 				<div class="panel-body">
@@ -121,28 +117,33 @@
 				</form>
 				</div>
 			</div>
-		</div><!-- /col4 -->
+		</div><!-- /col3 -->
 		
 		<div class="col-md-3">
 			<div class="panel panel-default">
 				<div class="panel-heading">Active Employees</div>
-				<ul class="list-group">
-					<li class="list-group-item" ng-repeat="employee in employees">
-						{{getDisplayName(employee)}}
-						<button class="btn btn-default" ng-click="setEmployeeActive(employee, false)">Retire</button>
-					</li>
-				</ul>
+				<table class="table table-striped table-condensed">
+					<tbody>
+						<tr ng-repeat="employee in employees">
+							<td>{{getDisplayName(employee)}}</td>
+							<td><button class="btn btn-default btn-xs" ng-click="setEmployeeActive(employee, false)">Retire</button></td>
+						</tr>		
+					</tbody>
+				</table>
 			</div>
 		</div>
+		
 		<div class="col-md-3">
 			<div class="panel panel-default">
 				<div class="panel-heading">Retired Employees</div>
-				<ul class="list-group">
-					<li class="list-group-item" ng-repeat="employee in retiredEmployees">
-						{{getDisplayName(employee)}}
-						<button class="btn btn-default" ng-click="setEmployeeActive(employee, true)">Reactivate</button>
-					</li>
-				</ul>
+				<table class="table table-striped table-condensed">
+					<tbody>
+						<tr ng-repeat="employee in retiredEmployees">
+							<td>{{getDisplayName(employee)}}</td>
+							<td><button class="btn btn-default btn-xs" ng-click="setEmployeeActive(employee, true)">Reactivate</button></td>
+						</tr>		
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>

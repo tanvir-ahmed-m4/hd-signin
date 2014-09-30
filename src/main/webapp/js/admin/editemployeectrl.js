@@ -33,6 +33,7 @@ angular.module('admin').controller('EmployeeMgmtCtrl', ['$scope', 'employeeServi
 				}
 			}
 			$scope.employees.push(employee);
+			sortEmployees($scope.employees);
 		}
 		else{
 			for(var i = 0; i < $scope.retiredEmployees.length; i++){
@@ -42,6 +43,7 @@ angular.module('admin').controller('EmployeeMgmtCtrl', ['$scope', 'employeeServi
 				}
 			}
 			$scope.retiredEmployees.push(employee);
+			sortEmployees($scope.retiredEmployees);
 		}
 	}
 
@@ -52,6 +54,12 @@ angular.module('admin').controller('EmployeeMgmtCtrl', ['$scope', 'employeeServi
 		$scope.newEmployee.netId = '';
 		$scope.newEmployee.lastName = '';
 		$scope.newEmployee.firstName = '';
+	}
+	
+	function sortEmployees(list){
+		list.sort(function(a, b){
+			return a.firstName > b.firstName ? 1 : -1;
+		});
 	}
 
 	$scope.finger = function(){
@@ -125,8 +133,11 @@ angular.module('admin').controller('EmployeeMgmtCtrl', ['$scope', 'employeeServi
 
 
 	}
-
+	
+	
 	employeeServices.getAllEmployees(false).then(function(response){
+		sortEmployees(response);
+		
 		addEmployees(response);
 		$scope.activeEmployee = $scope.employees[0];
 	});
