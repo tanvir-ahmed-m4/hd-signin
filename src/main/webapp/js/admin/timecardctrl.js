@@ -1,4 +1,7 @@
 angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices', 'miscServices', 'correctionRequestServices', 'PayPeriodServices', 'employeeServices', 'TimeUtils',  function($scope, timecardServices, miscServices, correctionRequestServices, PayPeriodServices, employeeServices, TimeUtils){
+	var MILLI_IN_HOUR = 1000.0 * 60.0 * 60.0;
+	$scope.usePercentages = false;
+	
 	$scope.user = null;
 	
 	$scope.periodStart = 0;
@@ -22,6 +25,10 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	}
 	
 	$scope.formatWorkTime = function(time){
+		if($scope.usePercentages){
+			time = (time / MILLI_IN_HOUR).toFixed(1);
+			return ((time == 0) ? 0 : time + ' hours');
+		}
 		return $scope.formatTime(time);
 	}
 	

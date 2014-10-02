@@ -30,6 +30,15 @@
 					<td ng-repeat="t in week track by t.idx">{{formatWorkTime(t.time)}}</td>
 				</tr>
 			</table>
+			<div class="panel-body">
+				<form class="form-inline" role="form">
+				  <div class="checkbox">
+				    <label>
+				      <input type="checkbox" ng-model="usePercentages"> Display times worked as percentages
+				    </label>
+				  </div>
+				</form>
+			</div>
 		</div>
 		
 		<!-- Work sessions panel -->
