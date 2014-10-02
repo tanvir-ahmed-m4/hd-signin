@@ -7,7 +7,7 @@
 			<div class="panel-body">
 				<div class="form-group">
 					<label for="periodSelect">Period End</label>
-					<select id="periodSelect" class="form-control" ng-model="periodEnd" ng-change="selectedPeriodChanged(periodEnd)" ng-options="formatDate(d) for d in periodEnds"></select>
+					<select id="periodSelect" class="form-control" ng-model="selectedPeriodEnd" ng-change="selectedPeriodChanged(selectedPeriodEnd)" ng-options="formatDate(d) for d in periodEnds"></select>
 				</div>
 				<div class="form-group" ng-if="isEmployeeSccLeadOrAbove()">
 					<label for="employeeSelect">Employee</label>
@@ -43,7 +43,8 @@
 		
 		<!-- Work sessions panel -->
 		<div class="panel panel-default">
-  			<div class="panel-heading">Work Sessions for {{employee.firstName}} from {{formatDate(periodStart)}} to {{formatDate(periodEnd)}}</div>
+			<!-- Subtract one because the date will be midnight of the following day, and won't be displayed properly -->
+  			<div class="panel-heading">Work Sessions for {{employee.firstName}} from {{formatDate(displayedPeriodStart)}} to {{formatDate(displayedPeriodEnd - 1)}}</div>
   			<div class="panel-body" ng-if="workSessions.workSessions.length <= 0 || !workSessions.workSessions">
   				<i>No work sessions for this period</i>
   			</div>

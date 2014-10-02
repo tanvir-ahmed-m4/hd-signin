@@ -1,12 +1,18 @@
 angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices', 'miscServices', 'correctionRequestServices', 'PayPeriodServices', 'employeeServices', 'TimeUtils',  function($scope, timecardServices, miscServices, correctionRequestServices, PayPeriodServices, employeeServices, TimeUtils){
+	
 	var MILLI_IN_HOUR = 1000.0 * 60.0 * 60.0;
+	var MILLI_IN_DAY = MILLI_IN_HOUR * 24;
+	var MILLI_IN_TWO_WEEKS = MILLI_IN_DAY * 14;
+	
 	$scope.usePercentages = false;
 	
 	$scope.user = null;
 	
-	$scope.periodStart = 0;
-	$scope.periodEnd = 0;
+	$scope.selectedPeriodEnd = 0;
 	$scope.periodEnds = [];
+	
+	$scope.displayedPeriodStart = 0;
+	$scope.displayedPeriodEnd = 0;
 	
 	$scope.employees = [];
 	$scope.employee = null;
@@ -16,6 +22,7 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	
 	$scope.timecard = null;
 	
+	//TODO clean this up
 	$scope.editedRow = -1;
 	$scope.workSessionBeingEdited = null;
 	
@@ -48,7 +55,10 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	}
 	
 	$scope.getEditMsg = function(){
-		return 'SUPERVISOR' == $scope.user.employeeType || 'SYSADMIN' == $scope.user.employeeType ? 'Submit Correction' : 'Submit Correction Request';
+		if(miscServices.hasLevel($scope.user, 'SUPERVISOR')){
+			return 'Submit Correction';
+		}
+		return 'Submit Correction Request';
 	}
 	
 	$scope.editRow = function(idx, workSession){
@@ -183,13 +193,17 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 		$scope.corrections = [];
 		
 		var eid = $scope.employee.id;
-		var twoWeeks = 1000 * 60 * 60 * 24 * 14;
 		
-		$scope.periodStart = $scope.periodEnd - twoWeeks;
+		
+		$scope.displayedPeriodEnd = $scope.selectedPeriodEnd + (24 * 3600 * 1000);
+		$scope.displayedPeriodStart = $scope.displayedPeriodEnd - MILLI_IN_TWO_WEEKS;
+		
+		var pEnd = $scope.displayedPeriodEnd;
+		var pStart = $scope.displayedPeriodStart;
 		
 		// if we aren't an scc lead, we can only load ourselves
 		if(miscServices.hasLevel($scope.user, 'SCC_LEAD')){
-			timecardServices.getTimecard(eid, $scope.periodStart, $scope.periodEnd).then(function(response){
+			timecardServices.getTimecard(eid, pStart, pEnd).then(function(response){
 				$scope.workSessions = response;
 				$scope.timecard = generateTimecard(response.workSessions, response.period.startOfPeriod, response.period.endOfPeriod);
 				updateDisplayedCorrectionRequests();
@@ -201,7 +215,7 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 			});
 		}
 		else{
-			timecardServices.getOwnTimecard($scope.periodStart, $scope.periodEnd).then(function(response){
+			timecardServices.getOwnTimecard(pStart, pEnd).then(function(response){
 				$scope.workSessions = response;
 				$scope.timecard = generateTimecard(response.workSessions, response.period.startOfPeriod, response.period.endOfPeriod);
 				updateDisplayedCorrectionRequests();
@@ -215,16 +229,16 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	}
 	
 	function generateTimecard(workSessions, startDate, endDate){
-		var millisPerDay = 1000 * 60 * 60 * 24;
+		
 		function getIdx(sessionStart){
-			return Math.floor((sessionStart - startDate) / millisPerDay)
+			return Math.floor((sessionStart - startDate) / MILLI_IN_DAY)
 		}
 		
 		var hours = [];
-		var days = Math.ceil((endDate - startDate) / millisPerDay);
+		var days = Math.ceil((endDate - startDate) / MILLI_IN_DAY);
 		
 		for(var i = 0; i < days; i++){
-			hours.push({time: 0, idx: i, day: startDate + (millisPerDay * i)});
+			hours.push({time: 0, idx: i, day: startDate + (MILLI_IN_DAY * i)});
 		}
 		
 		for(var i = 0; i < workSessions.length; i++){
@@ -276,7 +290,7 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	
 	PayPeriodServices.getPayPeriodEnds().then(function(response){
 		$scope.periodEnds = response.reverse();
-		$scope.periodEnd = $scope.periodEnds[0];
+		$scope.selectedPeriodEnd = $scope.periodEnds[0];
 		ajaxCallCompleted();
 	});
 	
