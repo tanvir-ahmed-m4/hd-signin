@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<bean id="legacyDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${db.driver}" />
+		<property name="url" value="${db.legacyurl}" />
+		<property name="username" value="${db.legacyusername}" />
+		<property name="password" value="${db.legacypassword}" />
+	</bean>
+	
+	<bean id="legacySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="legacyDataSource" />
+	</bean>
+
+	<bean id="privilegeLevelMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="edu.helpdesk.signin.legacy.dao.mybatis.PrivilegesMapper" />
+		<property name="sqlSessionFactory" ref="legacySqlSessionFactory" />
+	</bean>
+
+</beans>

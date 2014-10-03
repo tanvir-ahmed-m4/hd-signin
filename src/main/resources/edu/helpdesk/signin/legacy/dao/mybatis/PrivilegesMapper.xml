@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.helpdesk.signin.legacy.dao.mybatis.PrivilegesMapper">
+
+	<resultMap id="PrivilegeLevelMapper" type="edu.helpdesk.signin.legacy.model.LegPrivilegeLevel">
+		<result property="netId" column="netid" />
+		<result property="level" column="level" />
+	</resultMap>
+	
+
+	<select id="getAllPrivilegesMappings" resultMap="PrivilegeLevelMapper">
+		SELECT netid, level FROM privileges
+	</select>
+
+
+</mapper>
