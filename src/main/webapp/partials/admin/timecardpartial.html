@@ -11,7 +11,7 @@
 				</div>
 				<div class="form-group" ng-if="isEmployeeSccLeadOrAbove()">
 					<label for="employeeSelect">Employee</label>
-					<select id="employeeSelect" class="form-control" ng-model="employee" ng-change="selectedEmployeeChanged(employee)" ng-options="employee.firstName for employee in employees"></select>
+					<select id="employeeSelect" class="form-control" ng-model="employee" ng-change="selectedEmployeeChanged(employee)" ng-options="formatEmployeeName(employee) for employee in employees"></select>
 				</div>
 			</div>
 		</div>

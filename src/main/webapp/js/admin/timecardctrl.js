@@ -26,6 +26,12 @@ angular.module('admin').controller('TimecardCtrl', ['$scope', 'timecardServices'
 	$scope.editedRow = -1;
 	$scope.workSessionBeingEdited = null;
 	
+	
+	$scope.formatEmployeeName = function(employee){
+		if(!employee) return '';
+		return employee.firstName + ' ' + employee.lastName;
+	}
+	
 	// work session: {"id":6,"employeeId":3,"signinTime":1410031651000,"signoutTime":1410031661000}
 	$scope.getStartTime = function(workSession){
 		return new Date(workSession.signinTime).toLocaleString();
