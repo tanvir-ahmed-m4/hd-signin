@@ -643,21 +643,7 @@ public class AdminPageResource {
 
 			@Override
 			public Response doTask() {
-				return Response.ok(payPeriodDao.createPayPeriodEnds(periodEnds)).build();
-			}
-		});
-	}
-
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/periods")
-	@Description("Update pay periods with the given ids")
-	public Response updatePeriods(final List<PeriodEnd> ends){
-		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
-
-			@Override
-			public Response doTask() {
-				payPeriodDao.updatePayPeriodEnds(ends);
+				payPeriodDao.createPayPeriodEnds(periodEnds);
 				return Response.ok().build();
 			}
 		});

@@ -12,6 +12,39 @@
 		<result property="endOfPeriod" column="End" />
 	</resultMap>
 	
+	<sql id="selectPeriodEndFragment">
+		SELECT PeriodEndId, PeriodEnd FROM PeriodEnd 
+	</sql>
+	
+	<sql id="deletePeriodEndFragment">
+		DELETE FROM PeriodEnd
+	</sql>
+	 
+	
+	<select id="getAllPayPeriodEnds" resultMap="PayPeriodEndMapper">
+		<!-- public List<PeriodEnd> getAllPayPeriodEnds(); -->
+		<include refid="selectPeriodEndFragment" />
+	</select>
+	
+	<select id="getPayPeriodEnd" resultMap="PayPeriodEndMapper">
+		<!-- public PeriodEnd getPayPeriodEnd(@Param("id") Integer id); -->
+		<include refid="selectPeriodEndFragment" />
+		WHERE PeriodEndId = #{id}
+	</select>
+	
+	
+	<select id="getEndsBetweenDates" resultMap="PayPeriodEndMapper">
+		<!-- public List<PeriodEnd> getEndsBetweenDates(@Param("before") Date before,
+			@Param("after") Date after); -->
+			SET @before = #{before};
+			SET @after = #{after};
+			
+			
+			<include refid="selectPeriodEndFragment" />
+			WHERE @before &lt;= PeriodEnd AND PeriodEnd &lt; @after
+	</select>
+	
+
 	<select id="getPayPeriodForDate" resultMap="PayPeriodMapper">
 		<!-- public PayPeriod getPayPeriodForDate(@Param("d")Date d); -->
 		SET @date = #{d};
@@ -19,32 +52,23 @@
 		SET @PeriodEnd   = (SELECT PeriodEnd from PeriodEnd WHERE PeriodEnd &gt; @date ORDER BY PeriodEnd ASC  LIMIT 1);
 		SELECT @PeriodStart AS Start, @PeriodEnd AS End;
 	</select>
-	 
-	<select id="getAllPayPeriodEnds" resultMap="PayPeriodEndMapper">
-		<!-- public List<PeriodEnd> getAllPayPeriodEnds(); -->
-		SELECT PeriodEndId, PeriodEnd FROM PeriodEnd
-	</select>
 	
-	<select id="getPayPeriodEnd">
-		<!-- public PeriodEnd getPayPeriodEnd(@Param("id") Integer id); -->
-		invalid
-	</select>
-	
-	<update id="updatePayPeriodEnd">
-		<!-- public void updatePayPeriodEnd(@Param("end") PeriodEnd end); -->
-		invalid
-	</update>
-	
-	
-	<insert id="createPayPeriodEnd">
-		<!-- public Integer createPayPeriodEnd(@Param("end") PeriodEnd end); -->
-		INSERT INTO PeriodEnd (PeriodEnd) VALUES (#{end})
+	<insert id="createPayPeriodEnds">
+		<!-- public void createPayPeriodEnds(@Param("ends") List<Date> ends); -->
+		
+		INSERT INTO PeriodEnd (PeriodEnd) VALUES
+		<foreach collection="ends" item="item" separator=",">(#{item})</foreach>;
 	</insert>
 	
-	<delete id="deletePayPeriodEnd">
-		<!-- public void deletePayPeriodEnd(@Param("id")Integer id); -->
-		invalid
+	
+	<delete id="deleteAllPayPeriodEnds">
+		<!-- public void deleteAllPayPeriodEnds(); -->
+		<include refid="deletePeriodEndFragment" />
 	</delete>
-
-
+	
+	<delete id="deleteAllPayPeriodEnds">
+		<!-- public void deletePayPeriodEnds(@Param("ids") List<Integer> ids); -->
+		<include refid="deletePeriodEndFragment" />
+		WHERE PeriodEndId IN (<foreach collection="ids" item="item" separator=",">#{item}</foreach>);
+	</delete>
 </mapper>
