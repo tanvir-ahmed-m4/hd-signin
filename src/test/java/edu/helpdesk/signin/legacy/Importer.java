@@ -92,11 +92,10 @@ public class Importer{
 
 	private void runPayPeriodEndImport(){
 		List<Date> ends = legacyPayPeriodMapper.getAllPeriodEnds();
-		for(Date d : ends){
-			payPeriodDao.createPayPeriodEnd(d);
-		}
+		payPeriodDao.createPayPeriodEnds(ends);
 		log.info("Added {} pay period ends to the database", ends.size());
 	}
+	
 
 	private void runSigninDataImport(){
 		log.info("Importing signin data");
@@ -170,32 +169,6 @@ public class Importer{
 
 		log.info("Read in {} employees", legacyEmployees.size());
 		
-		if(isDryRun == false){
-			log.info("Writing {} employees to the database", employees.size());
-
-			int written = 0, skipped = 0;
-			for(int i = 0; i < employees.size(); i++){
-				Employee e = employees.get(i);
-				Employee existing = employeeDao.getEmployeeByNetId(e.getNetId());
-
-				if(existing != null){
-					skipped++;
-					log.info("Employee {} ({}) already exists in the database, updating", e.getNetId(), e.getFirstName());
-					e.setEmployeeType(existing.getEmployeeType());
-					e.setId(existing.getId());
-					employeeDao.updateEmployee(e);
-				}
-				else{
-					employeeDao.createEmployee(e);
-					written++;
-				}
-			}
-
-			log.info("Done writing employees to database. Wrote {}, skipped {}", written, skipped);
-		}
-		
-		
-
 		for(LegEmployee e : legacyEmployees){
 			employees.add(upgrade(e, levels));
 			levels.remove(e.getNetId());
@@ -210,13 +183,13 @@ public class Importer{
 		if(isDryRun == false){
 			log.info("Writing {} employees to the database", employees.size());
 
-			int written = 0, skipped = 0;
+			int createdCount = 0, updatedCount = 0;
 			for(int i = 0; i < employees.size(); i++){
 				Employee e = employees.get(i);
 				Employee existing = employeeDao.getEmployeeByNetId(e.getNetId());
 
 				if(existing != null){
-					skipped++;
+					updatedCount++;
 					log.info("Employee {} ({}) already exists in the database, updating", e.getNetId(), e.getFirstName());
 					e.setEmployeeType(existing.getEmployeeType());
 					e.setId(existing.getId());
@@ -224,11 +197,11 @@ public class Importer{
 				}
 				else{
 					employeeDao.createEmployee(e);
-					written++;
+					createdCount++;
 				}
 			}
 
-			log.info("Done writing employees to database. Wrote {}, skipped {}", written, skipped);
+			log.info("Done writing employees to database. Created {} new employees, updated {}", createdCount, updatedCount);
 		}
 
 		log.info("Done importing employees");
