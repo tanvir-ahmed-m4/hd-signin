@@ -1,13 +1,17 @@
+var alertedUserAboutError = false;
 var processError = function(response){
 	console.log('Got error from AJAX request: ' + JSON.stringify(response));
 	var msg = '';
 	
 	// handle a special case of failure
-	if(response.status == 401){
+	if(response.status == 401 && !alertedUserAboutError){
 		if(response.data){
 			if(response.data.error){
 				if(response.data.error == 'No employee signed in'){
-					alert('Authentication expired, please refresh the page');
+					if(confirm('Authentication expired, You will need to refresh the page\nWould you like to do that now?')){
+						window.location.reload();
+					}
+					alertedUserAboutError = true;
 				}
 			}
 		}
