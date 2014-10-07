@@ -29,8 +29,10 @@ import edu.helpdesk.signin.model.nto.SigninResultErrorNto;
 import edu.helpdesk.signin.model.nto.SigninResultNto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedINto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedOutNto;
+import edu.helpdesk.signin.services.EventDispatchingService;
 import edu.helpdesk.signin.services.EventLogger;
 import edu.helpdesk.signin.services.SnarkFactory;
+import edu.helpdesk.signin.services.events.EmployeeSwipeEvent;
 import edu.helpdesk.signin.web.util.PathConstants;
 import edu.helpdesk.signin.web.util.WebTask;
 import static edu.helpdesk.signin.web.util.WebTaskExecutor.doWebTaskSafe;
@@ -48,6 +50,9 @@ public class SigninPageResource {
 
 	@Autowired
 	private EventLogger logger;
+	
+	@Autowired
+	private EventDispatchingService eds;
 	
 	//////////////////////////////////////////////////////////////////////////
 	/////////////////////////    Constructor    //////////////////////////////
@@ -79,7 +84,8 @@ public class SigninPageResource {
 		return process(new WebTask() {
 			@Override
 			public Response doTask() {
-				return Response.ok(doSwipeInternal(data)).build();
+				SigninResultNto nto = doSwipeInternal(data);
+				return Response.ok(nto).build();
 			}
 		});
 	}
@@ -97,7 +103,7 @@ public class SigninPageResource {
 			WorkSession result = this.signinDao.doToggleSigninStatus(e);
 			boolean swipedIn = result.getSignoutTime() == null ? true : false;
 			
-			logger.logEvent("%s %s swiped %s", e.getFirstName(), e.getLastName(), swipedIn ? "in" : "out");
+			eds.doDispatchEvent(new EmployeeSwipeEvent(e, swipedIn));
 			
 			if(swipedIn){
 				return new SigninResultSwipedINto(e.getFirstName() + " " + e.getLastName());
@@ -105,7 +111,6 @@ public class SigninPageResource {
 			else{
 				int time = (int) (result.getSignoutTime().getTime() - result.getSigninTime().getTime());
 				
-				// TODO get time signed in for the day, and snark
 				return new SigninResultSwipedOutNto(time, getTimeWorkedDay(e), SnarkFactory.get().getSnark(time, e), getName(e));
 			}
 		}

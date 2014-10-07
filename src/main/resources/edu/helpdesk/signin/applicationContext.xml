@@ -11,8 +11,11 @@
  	<import resource="databaseBeans.xml"/>
  	<import resource="authBeans.xml"/>
  	<import resource="utilBeans.xml" />
+ 	<import resource="listenerBeans.xml" />
  	
 	<context:component-scan base-package="edu.helpdesk.signin.web.rest" />
  	
  	<bean id="validator" class="edu.helpdesk.signin.services.ProgramValidityVerifier" />
+ 	
+ 	<bean id="eventDispatchingService" class="edu.helpdesk.signin.services.EventDispatchingService" />
 </beans>
