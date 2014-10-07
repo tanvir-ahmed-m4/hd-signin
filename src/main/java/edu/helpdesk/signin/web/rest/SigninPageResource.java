@@ -30,7 +30,6 @@ import edu.helpdesk.signin.model.nto.SigninResultNto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedINto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedOutNto;
 import edu.helpdesk.signin.services.EventDispatchingService;
-import edu.helpdesk.signin.services.EventLogger;
 import edu.helpdesk.signin.services.SnarkFactory;
 import edu.helpdesk.signin.services.events.EmployeeSwipeEvent;
 import edu.helpdesk.signin.web.util.PathConstants;
@@ -48,9 +47,6 @@ public class SigninPageResource {
 	@Autowired
 	private SigninDao signinDao;
 
-	@Autowired
-	private EventLogger logger;
-	
 	@Autowired
 	private EventDispatchingService eds;
 	
