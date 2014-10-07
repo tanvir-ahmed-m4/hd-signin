@@ -494,22 +494,6 @@ public class AdminPageResource {
 		});
 	}
 
-	@DELETE
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path(PathConstants.ADMIN_SUPERVISOR_PATH + "/employee")
-	@Description("Delete an employee with the given ID")
-	public Response deleteEmployee(final Integer id){
-		return WebTaskExecutor.doWebTaskSafe(new WebTask() {
-			@Override
-			public Response doTask() {
-				employeeDao.deleteEmployee(id);
-				logger.logEvent("Employee with ID %d deleted", id);
-				return Response.ok().build();
-			}
-		});
-	}
-
-
 	////////////////////////////////////////////////////////////////////////////
 	////////////////////    Timecard REST functions    /////////////////////////
 	////////////////////////////////////////////////////////////////////////////
