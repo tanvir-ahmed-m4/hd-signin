@@ -26,7 +26,6 @@ public class LoggerEventListener implements ApplicationEventListener<Application
 
 	@Override
 	public void handleEvent(ApplicationEvent event) throws Exception {
-		log.debug("Event logged");
 		handleEventInternal(event);
 	}
 
@@ -61,17 +60,21 @@ public class LoggerEventListener implements ApplicationEventListener<Application
 		case APPROVED:
 			logger.logEvent("%s approved correction request %d for %s",
 					buildFullName(resolver), id, buildFullName(submitter));
+			return;
 		case DENIED:
 			if(resolver.getId() == submitter.getId()){
 				logger.logEvent("%s cancelled correction request %d", buildFullName(submitter), id);
+				return;
 			}
 			else{
 				logger.logEvent("%s denied correction request %d for %s",
 						buildFullName(resolver), id, buildFullName(submitter));
+				return;
 			}
 
 		case PENDING:
 		default:
+			return;
 		}
 	}
 
@@ -90,14 +93,12 @@ public class LoggerEventListener implements ApplicationEventListener<Application
 
 	private void handleEmployeeSwipeEvent(EmployeeSwipeEvent evt){
 		Employee e = evt.getEmployee();
-		log.debug("Employee {} swiped {}", evt.getEmployee().getFirstName(), evt.isNowSwipedIn() ? "in" : "out");
 		logger.logEvent("%s %s swiped %s", e.getFirstName(), e.getLastName(), evt.isNowSwipedIn() ? "in" : "out");
 	}
 
 	private void handleGenericEvent(ApplicationEvent e){
-		log.debug("Unclassified event of type {}: {}", e.getClass().getCanonicalName(), e.toString());
+		log.info("Unclassified event of type {}: {}", e.getClass().getCanonicalName(), e.toString());
 	}
-
 
 	private String buildFullName(Employee e){
 		return e == null ? "null" : String.format("%s %s (id %d)", e.getFirstName(), e.getLastName(), e.getId());
