@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Preconditions;
+
 import edu.helpdesk.signin.dao.EmployeeDao;
 import edu.helpdesk.signin.dao.PayPeriodDao;
 import edu.helpdesk.signin.dao.SigninDao;
@@ -38,8 +40,13 @@ import edu.helpdesk.signin.model.nto.SigninResultNto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedINto;
 import edu.helpdesk.signin.model.nto.SigninResultSwipedOutNto;
 import edu.helpdesk.signin.model.nto.SigninUser;
+import edu.helpdesk.signin.services.EventDispatchingService;
 import edu.helpdesk.signin.services.EventLogger;
 import edu.helpdesk.signin.services.TimecardFactory;
+import edu.helpdesk.signin.services.events.CorrectionRequestCreatedEvent;
+import edu.helpdesk.signin.services.events.CorrectionRequestResolvedEvent;
+import edu.helpdesk.signin.services.events.EmployeeCreatedEvent;
+import edu.helpdesk.signin.services.events.EmployeeUpdatedEvent;
 import edu.helpdesk.signin.util.AuthenticationUtil;
 import edu.helpdesk.signin.util.SigninUtil;
 import edu.helpdesk.signin.web.util.Description;
@@ -72,6 +79,9 @@ public class AdminPageResource {
 	@Autowired
 	private PayPeriodDao payPeriodDao;
 
+	@Autowired
+	private EventDispatchingService eds;
+	
 	public AdminPageResource() {
 		log.info("Administrative page resource created");
 	}
@@ -247,8 +257,7 @@ public class AdminPageResource {
 				request.setStatus(CorrectionRequestStatus.PENDING);
 				CorrectionRequest out = signinDao.getCorrectionRequest(signinDao.createCorrectionRequest(request));
 				
-				logger.logEvent("%s submitted a correction request with id %d",
-						buildFullName(request.getSubmitter()), out.getId());
+				eds.doDispatchEvent(new CorrectionRequestCreatedEvent(out));
 				
 				return Response.ok(out).build();
 			}
@@ -276,8 +285,7 @@ public class AdminPageResource {
 				signinDao.applyCorrectionRequest(request);
 				CorrectionRequest out = signinDao.getCorrectionRequest(request.getId());
 				
-				logger.logEvent("%s approved correction request %d for %s",
-						buildFullName(out.getCompleter()), out.getId(), buildFullName(out.getSubmitter()));
+				eds.doDispatchEvent(new CorrectionRequestResolvedEvent(out));
 				
 				return Response.ok(out).build();
 			}
@@ -302,8 +310,8 @@ public class AdminPageResource {
 				signinDao.rejectCorrectionRequest(request);
 
 				CorrectionRequest out = signinDao.getCorrectionRequest(request.getId());
-				logger.logEvent("%s denied correction request %d for %s",
-						buildFullName(out.getCompleter()), out.getId(), buildFullName(out.getSubmitter()));
+				
+				eds.doDispatchEvent(new CorrectionRequestResolvedEvent(out));
 				
 				return Response.ok(out).build();
 			}
@@ -330,8 +338,8 @@ public class AdminPageResource {
 				
 				CorrectionRequest out = signinDao.getCorrectionRequest(request.getId());
 				
-				logger.logEvent("%s cancelled correction request %d", buildFullName(out.getSubmitter()), out.getId());
-				
+				eds.doDispatchEvent(new CorrectionRequestResolvedEvent(out));
+
 				return Response.ok(out).build();
 			}
 		});
@@ -457,9 +465,7 @@ public class AdminPageResource {
 				Integer id = employeeDao.createEmployee(e);
 				Employee out = employeeDao.getEmployee(id);
 				
-				logger.logEvent("A new employee named %s was created by %s", 
-						buildFullName(out), 
-						buildFullName(WebUtils.get().getAuthenticatedUser(request)));
+				eds.doDispatchEvent(new EmployeeCreatedEvent(out, utils.getAuthenticatedUser(request)));
 				
 				return Response.ok(out).build();
 			}
@@ -476,18 +482,21 @@ public class AdminPageResource {
 			@Override
 			public Response doTask() throws Exception {
 				Employee signedIn = utils.getAuthenticatedUser(request);
-
+				
+				
 				Preconditions.checkArgument(e != null, "Passed in employee is invalid");
 				Preconditions.checkArgument(signedIn != null, "Signed in user is not an employee");
 
 				if(e.getId() != signedIn.getId()){
 					AuthenticationUtil.get().verifyMinimumPermissionLevel(EmployeeType.SCC_LEAD, signedIn);
 				}
-
+				
+				
+				Employee original = employeeDao.getEmployee(e.getId());
 				employeeDao.updateEmployee(e);
 				Employee out = employeeDao.getEmployee(e.getId());
 				
-				logger.logEvent("%s updated the information for %s", buildFullName(signedIn), buildFullName(out));
+				eds.doDispatchEvent(new EmployeeUpdatedEvent(original, out, signedIn));
 				
 				return Response.ok(out).build();
 			}
@@ -653,10 +662,6 @@ public class AdminPageResource {
 	//////////////////    Internal helper functions    /////////////////////////
 	////////////////////////////////////////////////////////////////////////////
 
-	private String buildFullName(Employee e){
-		return e == null ? "" : String.format("%s %s (id %d)", e.getFirstName(), e.getLastName(), e.getId());
-	}
-	
 	private List<CorrectionRequest> getCorrectionRequestsInternal(boolean includeResolved){
 		List<CorrectionRequest> out;
 
