@@ -9,4 +9,7 @@
 
 	<bean id="loggerEventListener" class="edu.helpdesk.signin.services.events.listeners.LoggerEventListener" />
 
+	<bean id="correctionRequestResolvedListener" class="edu.helpdesk.signin.services.events.listeners.CorrectionRequestResolvedListener" />
+
+	<bean id="correctionRequestCreatedListener" class="edu.helpdesk.signin.services.events.listeners.CorrectionRequestCreatedListener" />
 </beans>
