@@ -127,7 +127,7 @@ public class EventDispatchingService implements ApplicationContextAware{
 					ParameterizedType pt = (ParameterizedType) ot;
 					for(Type t : pt.getActualTypeArguments()){
 						Class<?> c = (Class<?>) t;
-						if(c.isAssignableFrom(ApplicationEvent.class)){
+						if(ApplicationEvent.class.isAssignableFrom(c)){
 							key = c;
 							break root;
 						}
