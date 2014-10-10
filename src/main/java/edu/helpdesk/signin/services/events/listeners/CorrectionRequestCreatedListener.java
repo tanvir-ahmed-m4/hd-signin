@@ -91,7 +91,7 @@ public class CorrectionRequestCreatedListener implements ApplicationEventListene
 
 		try {
 			while((temp = reader.readLine()) != null){
-				out.append(temp).append("\n");
+				out.append(temp).append("<br />\n");
 			}
 		} catch (IOException e) {
 			log.warn("Error reading in template", e);
