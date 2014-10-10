@@ -48,7 +48,7 @@
 			cr.NewSigninTime,
 			cr.NewSignoutTime,
 			cr.OriginalSigninTime,
-			IF(cr.OriginalSignoutTime = 0, NULL, cr.OriginalSignoutTime)
+			IF(cr.OriginalSignoutTime = 0, NULL, cr.OriginalSignoutTime) AS OriginalSignoutTime
 		FROM CorrectionRequest AS cr
 		LEFT JOIN CorrectionRequestStatus AS cs ON cs.CorrectionRequestStatusId = cr.CorrectionRequestStatusId
 	</sql>
