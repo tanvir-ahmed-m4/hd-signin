@@ -14,4 +14,6 @@
 	<bean id="snarkFactory" class="edu.helpdesk.signin.services.SnarkFactory" />
 	
 	<bean id="loggerService" class="edu.helpdesk.signin.services.EventLogger" />
+	
+	<bean id="emailService" class="edu.helpdesk.signin.services.EmailService" />
 </beans>

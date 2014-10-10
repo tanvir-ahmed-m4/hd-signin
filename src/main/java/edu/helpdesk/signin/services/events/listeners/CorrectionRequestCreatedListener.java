@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.helpdesk.signin.model.CorrectionRequest;
 import edu.helpdesk.signin.services.EmailService;
@@ -13,6 +14,8 @@ import edu.helpdesk.signin.services.events.CorrectionRequestCreatedEvent;
 public class CorrectionRequestCreatedListener implements ApplicationEventListener<CorrectionRequestCreatedEvent> {
 	private final Logger log = LoggerFactory.getLogger(CorrectionRequestCreatedListener.class);
 	
+	@Autowired
+	private EmailService emailService;
 	
 	public CorrectionRequestCreatedListener() {
 		log.debug("{} created", this.getClass().getSimpleName());
@@ -23,7 +26,7 @@ public class CorrectionRequestCreatedListener implements ApplicationEventListene
 			throws Exception {
 		final CorrectionRequest cr = event.getCreatedRequest();
 		String to = event.getCreatedRequest().getSubmitter().getNetId();
-		
+		String subject = String.format("%s, your correction request has been received", cr.getSubmitter().getFirstName());
 		String msg = String.format("%s, your correction request has been received, "
 				+ "and will change your work session from %s->%s to %s->%s if approved",
 				cr.getSubmitter().getFirstName(), 
@@ -31,11 +34,7 @@ public class CorrectionRequestCreatedListener implements ApplicationEventListene
 				cr.getOriginalSignoutTime(),
 				cr.getNewSigninTime(),
 				cr.getNewSignoutTime());
-		log.info("Email that should be sent to {}@rice.edu: \"{}\"", to, msg);
-		
-		new EmailService().send(new EmailService().createEmail(Arrays.asList(to + "@rice.edu"), "TESTING EMAIL", msg));
-		
-		// TODO actually send email
+		emailService.send(emailService.createEmail(Arrays.asList(to + "@rice.edu"), subject, msg));
 	}
 
 }
