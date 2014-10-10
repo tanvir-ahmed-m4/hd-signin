@@ -2,7 +2,7 @@ package edu.helpdesk.signin.services;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
 
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
@@ -10,6 +10,9 @@ import org.apache.commons.mail.HtmlEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 public class EmailService {
 	private static final Logger log = LoggerFactory.getLogger(EmailService.class);
@@ -41,6 +44,22 @@ public class EmailService {
 		}
 		INSTANCE = this;
 	}
+	
+	public String replaceSubstitutions(String template, Map<String, String> replacements){
+		
+		if(template == null){
+			return null;
+		}
+		if(replacements == null){
+			return template;
+		}
+		
+		String out = template;
+		for(Map.Entry<String, String> r : replacements.entrySet()){
+			out = out.replace(r.getKey(), r.getValue());
+		}
+		return out;
+	}
 
 	public HtmlEmail createEmail(List<String> to, String subject, String htmlBody){
 		return createEmail(to, new ArrayList<String>(0), subject, htmlBody);
@@ -68,7 +87,6 @@ public class EmailService {
 				out.addCc(cc.toArray(new String[]{}));
 			if(bcc != null && bcc.size() > 0)
 				out.addBcc(bcc.toArray(new String[]{}));
-			
 		}catch(EmailException e){
 			log.warn("Exception creating email", e);
 			return null;
@@ -78,9 +96,9 @@ public class EmailService {
 
 
 	public boolean send(Email email){
-		if(email == null){
-			throw new NullPointerException("Email cannot be null");
-		}
+		Preconditions.checkArgument(email != null, "Email cannot be null");
+		Preconditions.checkArgument(!Strings.isNullOrEmpty(email.getSubject()), "Email subject line cannot be null or empty");
+
 		if(sendingEnabled == false){
 			log.info("Not sending email because sending email is disabled");
 			return false;

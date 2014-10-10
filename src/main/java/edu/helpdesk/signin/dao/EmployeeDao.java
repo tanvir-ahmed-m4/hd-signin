@@ -1,5 +1,6 @@
 package edu.helpdesk.signin.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 import edu.helpdesk.signin.dao.mybatis.EmployeeMapper;
+import edu.helpdesk.signin.model.EmployeeType;
 import edu.helpdesk.signin.model.dto.Employee;
 
 
@@ -36,6 +38,21 @@ public class EmployeeDao {
 	
 	public List<Employee> getAllEmployees(){
 		return mapper.getAllEmployees();
+	}
+	
+	public List<Employee> getAllEmployeesAtOrAboveLevel(EmployeeType type, boolean includeInactive){
+		List<Employee> raw = this.getAllEmployees();
+		List<Employee> out = new ArrayList<Employee>();
+		
+		for(Employee e : raw){
+			if(e.getIsEmployeeActive() || includeInactive){
+				if(e.getEmployeeType().isAboveOrEqualTo(type)){
+					out.add(e);
+				}
+			}
+		}
+		
+		return out;
 	}
 	
 	public Employee getEmployee(Integer id){
